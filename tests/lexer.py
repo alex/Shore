@@ -44,6 +44,23 @@ class LexerTest(unittest.TestCase):
             ("=", "="),
             ("name", "c"),
         ])
+    
+    def test_math(self):
+        self.assert_lexes("""a = 3\nb = a*2 - a/9""", [
+            ("name", "a"),
+            ("=", "="),
+            ("number", "3"),
+            ("newline", "\n"),
+            ("name", "b"),
+            ("=", "="),
+            ("name", "a"),
+            ("*", "*"),
+            ("number", "2"),
+            ("-", "-"),
+            ("name", "a"),
+            ("/", "/"),
+            ("number", "9"),
+        ])
 
 
 if __name__ == "__main__":
