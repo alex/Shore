@@ -75,6 +75,27 @@ class LexerTest(unittest.TestCase):
             ("*", "*"),
             ("name", "a"),
         ])
+    
+    def test_indent(self):
+        self.assert_lexes("""for i in range(5):\n    print(i)""", [
+            ("name", "for"),
+            ("name", "i"),
+            ("name", "in"),
+            ("name", "range"),
+            ("(", "("),
+            ("number", "5"),
+            (")", ")"),
+            (":", ":"),
+            ("newline", "\n"),
+            ("whitespace", " "),
+            ("whitespace", " "),
+            ("whitespace", " "),
+            ("whitespace", " "),
+            ("name", "print"),
+            ("(", "("),
+            ("name", "i"),
+            (")", ")"),
+        ])
 
 
 if __name__ == "__main__":
