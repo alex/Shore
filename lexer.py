@@ -18,15 +18,8 @@ class Lexer(object):
         state = None
         current_val = []
         
-        while True:
-            try:
-                ch = self.text[index]
-            except IndexError:
-                if state == "number":
-                    yield Symbol("number", "".join(current_val))
-                elif state == "name":
-                    yield Symbol("name", "".join(current_val))
-                break
+        while index < len(self.text):
+            ch = self.text[index]
             index += 1
             if ch == '"':
                 if state == "string":
@@ -103,6 +96,9 @@ class Lexer(object):
                     yield Symbol("name", "".join(current_val))
                     state = None
                     current_val = []
-                elif state is None:
-                    yield Symbol(ch, ch)
-                    continue
+                yield Symbol(ch, ch)
+                continue
+        if state == "number":
+            yield Symbol("number", "".join(current_val))
+        elif state == "name":
+            yield Symbol("name", "".join(current_val))
