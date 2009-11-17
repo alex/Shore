@@ -7,8 +7,10 @@ from shore.lexer import Lexer
 
 class LexerTest(unittest.TestCase):
     def assert_lexes(self, string, tokens):
-        result = Lexer(string).parse()
-        self.assertEqual(list(result), tokens)
+        result = list(Lexer(string).parse())
+        diffs = ["%s\t\t\t\t%s" % (expected, seen) for expected, seen in zip(tokens, result)]
+        error_message = "\n".join([None] + diffs)
+        self.assertEqual(result, tokens, error_message)
     
     def test_simple(self):
         self.assert_lexes("""a = 3""", [
@@ -93,7 +95,7 @@ class LexerTest(unittest.TestCase):
         ])
     
     def test_indent(self):
-        self.assert_lexes("""for i in range(5):\n    print(i)""", [
+        self.assert_lexes("""for i in range(5):\n    print(i)\n    print(i)\nprint(3)""", [
             ("name", "for"),
             ("name", "i"),
             ("name", "in"),
@@ -103,10 +105,21 @@ class LexerTest(unittest.TestCase):
             (")", ")"),
             (":", ":"),
             ("newline", "\n"),
-            ("whitespace", "    "),
+            ("indent", ""),
             ("name", "print"),
             ("(", "("),
             ("name", "i"),
+            (")", ")"),
+            ("newline", "\n"),
+            ("name", "print"),
+            ("(", "("),
+            ("name", "i"),
+            (")", ")"),
+            ("newline", "\n"),
+            ("dedent", ""),
+            ("name", "print"),
+            ("(", "("),
+            ("number", "3"),
             (")", ")"),
         ])
 

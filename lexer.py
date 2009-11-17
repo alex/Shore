@@ -14,6 +14,36 @@ class Lexer(object):
         self.text = text
     
     def parse(self):
+        levels = [0]
+        tokens = self.parse_main()
+        def handle_whitespace(token):
+            if len(token.value) == levels[-1]:
+                return []
+            elif len(token.value) > levels[-1]:
+                indents = (len(token.value) - levels[-1]) / 4
+                levels.append(len(token.value))
+                return [Symbol("indent", "") for i in xrange(indents)]
+            elif len(token.value) < levels[-1]:
+                dedents = (levels[-1] - len(token.value)) / 4
+                levels.append(len(token.value))
+                return [Symbol("dedent", "") for i in xrange(dedents)]
+        for token in tokens:
+            if token.name == "newline":
+                yield token
+                next = tokens.next()
+                if next.name == "whitespace":
+                    result = handle_whitespace(next)
+                    for token in result:
+                        yield token
+                else:
+                    for i in xrange(levels[-1] / 4):
+                        yield Symbol("dedent", "")
+                    yield next
+            else:
+                yield token
+                    
+    
+    def parse_main(self):
         index = 0
         self.state = None
         self.current_val = []
