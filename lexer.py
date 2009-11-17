@@ -12,7 +12,8 @@ class Lexer(object):
     keywords = (
         "and", "as", "break", "class", "continue", "def", "del", "elif", "else",
         "except", "finally", "for", "from", "if", "import", "in", "is", "not",
-        "or", "pass", "raise", "return", "try", "while", "yield",
+        "or", "pass", "raise", "return", "try", "while", "yield", "True",
+        "False", "None"
     )
     
     def __init__(self, text):
