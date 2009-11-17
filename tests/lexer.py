@@ -61,6 +61,20 @@ class LexerTest(unittest.TestCase):
             ("/", "/"),
             ("number", "9"),
         ])
+        
+        self.assert_lexes("""int a = 5\nint b = 5 * a""", [
+            ("name", "int"),
+            ("name", "a"),
+            ("=", "="),
+            ("number", "5"),
+            ("newline", "\n"),
+            ("name", "int"),
+            ("name", "b"),
+            ("=", "="),
+            ("number", "5"),
+            ("*", "*"),
+            ("name", "a"),
+        ])
 
 
 if __name__ == "__main__":
