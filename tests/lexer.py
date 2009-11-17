@@ -5,11 +5,14 @@ import unittest
 from shore.lexer import Lexer
 
 
+def pad(s, length=15):
+    return s + " " * (max(0, length - len(s)))
+
 class LexerTest(unittest.TestCase):
     def assert_lexes(self, string, tokens):
         result = list(Lexer(string).parse())
-        diffs = ["%s\t\t\t\t%s" % (expected, seen) for expected, seen in zip(tokens, result)]
-        error_message = "\n".join([None] + diffs)
+        diffs = ["%s\t\t%s" % (pad(str(expected)), seen) for expected, seen in zip(tokens, result)]
+        error_message = "\n".join([""] + diffs)
         self.assertEqual(result, tokens, error_message)
     
     def test_simple(self):
