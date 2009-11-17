@@ -52,16 +52,13 @@ class Lexer(object):
                 elif state == "string":
                     current_val.append(ch)
                     continue
+                elif state == "name":
+                    current_val.append(ch)
+                    continue
                 elif state is None:
                     state = "number"
                     current_val.append(ch)
                     continue
-            elif ch in self.name_chars:
-                if state == "string":
-                    current_val.append(ch)
-                    continue
-                elif state == "name":
-                    current_val.append(ch)
             elif ch == "\n":
                 if state == "name":
                     yield Symbol("name", "".join(current_val))

@@ -44,6 +44,12 @@ class LexerTest(unittest.TestCase):
             ("=", "="),
             ("name", "c"),
         ])
+        
+        self.assert_lexes("""abc2 = 342""", [
+            ("name", "abc2"),
+            ("=", "="),
+            ("number", "342"),
+        ])
     
     def test_math(self):
         self.assert_lexes("""a = 3\nb = a*2 - a/9""", [
