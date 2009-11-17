@@ -16,6 +16,30 @@ class Lexer(object):
         "False", "None"
     )
     
+    symbols = {
+        "@": "decorator",
+        "+": "plus",
+        "-": "minus",
+        "*": "star",
+        "/": "slash",
+        "(": "lpar",
+        ")": "rpar",
+        "[": "lsqb",
+        "]": "rsqb",
+        ":": "colon",
+        ",": "comma",
+        "|": "vbar",
+        "&": "amper",
+        "<": "less",
+        ">": "greater",
+        "=": "equal",
+        ".": "dot",
+        "%": "percent",
+        "{": "lbrace",
+        "}": "rbrace",
+        "~": "tilde",
+    }
+    
     def __init__(self, text):
         self.text = text
     
@@ -140,4 +164,6 @@ class Lexer(object):
             self.state = "newline"
             return Symbol("newline", "\n")
         else:
-            return Symbol(ch, ch)
+            if ch in self.symbols:
+                return Symbol(self.symbols[ch], ch)
+            raise ValueError("%s couldn't be parsed" % ch)
