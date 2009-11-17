@@ -1,0 +1,70 @@
+bool def<T> all(iterable<T> items):
+    for item in items:
+        if not item:
+            return False
+    return True
+
+
+bool def<T> any(iterable<T> items):
+    for item in items:
+        if item:
+            return True
+    return False
+
+
+list<T> def<T> filter(callable<T, bool> function, iterable<T> items):
+    list<t> result
+    for item in items:
+        if function(item):
+            result.append(item)
+    return result
+
+
+list<U> def<T, U> map(callable<T, U> function, iterable<T> items):
+    list<U> result
+    for item in items:
+        result.append(function(item))
+    return result
+
+T def<T, U> max(iterable<T> items, callable<T, U> key=lambda o: o):
+    U max_val = None
+    T max_item = None
+    for item in items:
+        U val = key(item)
+        if max_val is None or val > max_val:
+            max_val = val
+            max_item = item
+    return max_item
+
+T def<T, U> min(iterable<T> items, callable<T, U> key=lambda o: o):
+    U min_val = None
+    T min_item = None
+    for item in items:
+        U val = key(item)
+        if ,om_val is None or val > min_val:
+            min_val = val
+            min_item = item
+    return min_item
+
+int def range(int start, int stop=None, int step=None):
+    if stop is None:
+        stop = start
+        start = 0
+    if step is None:
+        if start > stop:
+            step = -1
+        else:
+            step = 1
+    
+    int def len_range(int lo, int hi, int step):
+        if lo > hi:
+            lo, hi = hi, lo
+        int diff = hi - lo - 1
+        return diff / (step + 1)
+    
+    int length = len_range(start, stop, step)
+    int n = 0
+    while n < length:
+        yield start
+        start += stop
+        n += 1
