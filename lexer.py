@@ -15,87 +15,81 @@ class Lexer(object):
     
     def parse(self):
         index = 0
-        state = None
-        current_val = []
+        self.state = None
+        self.current_val = []
         
         while index < len(self.text):
             ch = self.text[index]
             index += 1
-            if ch == '"':
-                if state == "string":
-                    yield Symbol("string", "".join(current_val))
-                    current_val = []
-                    state = None
-                    continue
-                elif state == "string escaped":
-                    current_val.append('"')
-                    state = "string"
-                    continue
-                elif state is None or state == "newline":
-                    state = "string"
-                    continue
-            elif ch in self.name_start_chars:
-                if state == "string":
-                    current_val.append(ch)
-                    continue
-                elif state == "name":
-                    current_val.append(ch)
-                    continue
-                elif state is None or state == "newline":
-                    state = "name"
-                    current_val.append(ch)
-                    continue
-            elif ch in self.numbers:
-                if state == "number":
-                    current_val.append(ch)
-                    continue
-                elif state == "string":
-                    current_val.append(ch)
-                    continue
-                elif state == "name":
-                    current_val.append(ch)
-                    continue
-                elif state is None:
-                    state = "number"
-                    current_val.append(ch)
-                    continue
-            elif ch == "\n":
-                if state == "name":
-                    yield Symbol("name", "".join(current_val))
-                    current_val = []
-                elif state == "number":
-                    yield Symbol("number", "".join(current_val))
-                    current_val = []
-                yield Symbol("newline", "\n")
-                state = "newline"
-                continue
-            elif ch == " ":
-                if state == "newline":
-                    yield Symbol("whitespace", " ")
-                    continue
-                elif state == "name":
-                    yield Symbol("name", "".join(current_val))
-                    state = None
-                    current_val = []
-                elif state == "number":
-                    yield Symbol("number", "".join(current_val))
-                    state = None
-                    current_val = []
+            
+            if self.state is not None:
+                result = getattr(self, self.state)(ch)
             else:
-                if state == "string":
-                    current_val.append(ch)
-                    continue
-                elif state == "number":
-                    yield Symbol("number", "".join(current_val))
-                    state = None
-                    current_val = []
-                elif state == "name":
-                    yield Symbol("name", "".join(current_val))
-                    state = None
-                    current_val = []
-                yield Symbol(ch, ch)
-                continue
-        if state == "number":
-            yield Symbol("number", "".join(current_val))
-        elif state == "name":
-            yield Symbol("name", "".join(current_val))
+                result = self.generic(ch)
+            
+            if result is not None:
+                if not isinstance(result, list):
+                    result = [result]
+                for result in result:
+                    if result is not None:
+                        yield result
+
+        if self.state == "number":
+            yield Symbol("number", "".join(self.current_val))
+        elif self.state == "name":
+            yield Symbol("name", "".join(self.current_val))
+    
+    def string(self, ch):
+        if ch == '"':
+            sym = Symbol("string", "".join(self.current_val))
+            self.current_val = []
+            self.state = None
+            return sym
+        elif ch == "\\":
+            self.state = "string_escaped"
+        else:
+            self.current_val.append(ch)
+    
+    def string_escaped(self, ch):
+        self.current_val.append(ch)
+        self.state = "string"
+    
+    def name(self, ch):
+        if ch in self.name_chars:
+            self.current_val.append(ch)
+        else:
+            sym = Symbol("name", "".join(self.current_val))
+            self.current_val = []
+            self.state = None
+            return [sym, self.generic(ch)]
+    
+    def number(self, ch):
+        if ch in self.numbers:
+            self.current_val.append(ch)
+        else:
+            sym = Symbol("number", "".join(self.current_val))
+            self.current_val = []
+            self.state = None
+            return [sym, self.generic(ch)]
+    
+    def newline(self, ch):
+        if ch == " ":
+            return Symbol("whitespace", " ")
+        return self.generic(ch)
+    
+    def generic(self, ch):
+        if ch == '"':
+            self.state = "string"
+        elif ch in self.name_start_chars:
+            self.state = "name"
+            self.current_val.append(ch)
+        elif ch in self.numbers:
+            self.state = "number"
+            self.current_val.append(ch)
+        elif ch == " ":
+            return
+        elif ch == "\n":
+            self.state = "newline"
+            return Symbol("newline", "\n")
+        else:
+            return Symbol(ch, ch)
