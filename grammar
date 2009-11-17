@@ -1,0 +1,34 @@
+input = (newline | statement)*
+statement = simple_statement | compound_statement
+simple_statement = expression | decleration | assignment_statement | flow_statement |
+    import_statement
+expression = True | False | None | epxression plus expression | expression minus expression |
+    expression star expression | expression slash expression | expression star star expression |
+    expression vbar expression | expression amper expression | lpar expression rpar |
+    expression dot name | expression lsqb expression rsqb | expression percent expression |
+    not expression | tilde expression | expression and expression | expression or expression |
+    literal | atom | name
+literal = string | number | number dot [number] | [number] dot number
+decleration = type name equal expression
+type = name | name less type greater
+assignment_statement = name (equal name)* equal expression
+flow_statement = break | pass | continue | return_statement | raise_statement | yield_statement
+return_statement = return expression
+raise_statement = raise expression
+yield_statement = yield expression
+import_statement = from dotted_name import name (comma name)*
+dotted_name = name (dot name)*
+compound_statement = if_statement | while_statement | for_statement | function_defintion |
+    class_definition | decorated_function
+if_statement = if expression colon suite (elif expression colon suite)* [else colon suite]
+while_statement = while expression colon suite
+for_statement = for name in expression colon suite
+suite = newline indent statement+ dedent
+function_definition = type def[less name (comma name)* greater] name parameters colon suite
+class_definition = class[less name (comma name)* greater] name lpar name (comma name)* rpar) colon suite
+parameters = lpar (type name [equal expression])* rpar
+atom = tuple | list | dict | set
+tuple = expression comma (expression comma)* [expression [comma]]
+list = lsqb (expression comma)* [expression [comma]] rsqb
+dict = lbrace (expression colon expression comma)* [expression colon expression [comma]] rbrace
+set = lbrace expression comma (expression comma)* [expression [comma]] rbrace
