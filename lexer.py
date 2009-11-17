@@ -74,8 +74,14 @@ class Lexer(object):
     
     def newline(self, ch):
         if ch == " ":
-            return Symbol("whitespace", " ")
-        return self.generic(ch)
+            self.current_val.append(" ")
+        else:
+            if self.current_val:
+                sym = Symbol("whitespace", "".join(self.current_val))
+                self.state = None
+                self.current_val = []
+                return [sym, self.generic(ch)]
+            return self.generic(ch)
     
     def generic(self, ch):
         if ch == '"':
