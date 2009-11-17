@@ -50,6 +50,16 @@ class LexerTest(unittest.TestCase):
             ("=", "="),
             ("number", "342"),
         ])
+        
+        self.assert_lexes("""a = "\\\""\nb = a""", [
+            ("name", "a"),
+            ("=", "="),
+            ("string", '"'),
+            ("newline", "\n"),
+            ("name", "b"),
+            ("=", "="),
+            ("name", "a")
+        ])
     
     def test_math(self):
         self.assert_lexes("""a = 3\nb = a*2 - a/9""", [
