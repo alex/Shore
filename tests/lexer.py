@@ -99,9 +99,9 @@ class LexerTest(unittest.TestCase):
     
     def test_indent(self):
         self.assert_lexes("""for i in range(5):\n    print(i)\n    print(i)\nprint(3)""", [
-            ("name", "for"),
+            ("for", "for"),
             ("name", "i"),
-            ("name", "in"),
+            ("in", "in"),
             ("name", "range"),
             ("(", "("),
             ("number", "5"),

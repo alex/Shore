@@ -9,6 +9,11 @@ class Lexer(object):
     name_chars = name_start_chars + numbers
     special_chars = "()[]:,+-*/|&<>=%{}~^"
     
+    keywords = (
+        "and", "as", "break", "class", "continue", "def", "del", "elif", "else",
+        "except", "finally", "for", "from", "if", "import", "in", "is", "not",
+        "or", "pass", "raise", "return", "try", "while", "yield",
+    )
     
     def __init__(self, text):
         self.text = text
@@ -69,6 +74,13 @@ class Lexer(object):
         elif self.state == "name":
             yield Symbol("name", "".join(self.current_val))
     
+    def emit_name(self):
+        name = "".join(self.current_val)
+        self.current_val = []
+        if name in self.keywords:
+            return Symbol(name, name)
+        return Symbol("name", name)
+    
     def string(self, ch):
         if ch == '"':
             sym = Symbol("string", "".join(self.current_val))
@@ -88,8 +100,7 @@ class Lexer(object):
         if ch in self.name_chars:
             self.current_val.append(ch)
         else:
-            sym = Symbol("name", "".join(self.current_val))
-            self.current_val = []
+            sym = self.emit_name()
             self.state = None
             return [sym, self.generic(ch)]
     
