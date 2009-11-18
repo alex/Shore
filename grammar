@@ -16,7 +16,7 @@ flow_statement = BREAK | PASS | CONTINUE | return_statement | raise_statement | 
 return_statement = RETURN expression
 raise_statement = RAISE expression
 yield_statement = YIELD expression
-import_statement = FROM dotted_name IMPORT NAME (COMMA NAME)*
+import_statement = FROM dotted_name IMPORT NAME (COMMA NAME)* | IMPORT dotted_name
 dotted_name = NAME (dot NAME)*
 compound_statement = if_statement | while_statement | for_statement | function_defintion |
     class_definition | decorated_function
