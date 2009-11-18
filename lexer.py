@@ -7,7 +7,6 @@ class Lexer(object):
     numbers = "1234567890"
     name_start_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
     name_chars = name_start_chars + numbers
-    special_chars = "()[]:,+-*/|&<>=%{}~^"
     
     keywords = frozenset([
         "and", "as", "break", "class", "continue", "def", "del", "elif", "else",
@@ -39,6 +38,7 @@ class Lexer(object):
         "}": "RBRACE",
         "~": "TILDE",
         "^": "CIRCUMFLEX",
+        "@": "AT",
     }
     
     def __init__(self, text):
