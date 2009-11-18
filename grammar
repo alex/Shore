@@ -1,6 +1,6 @@
 input = (newline | statement)*
 statement = simple_statement | compound_statement
-simple_statement = expression | decleration | assignment_statement | flow_statement |
+simple_statement = expression | declaration | assignment_statement | flow_statement |
     import_statement
 expression = True | False | None | epxression plus expression | expression minus expression |
     expression star expression | expression slash expression | expression star star expression |
@@ -9,7 +9,7 @@ expression = True | False | None | epxression plus expression | expression minus
     not expression | tilde expression | expression and expression | expression or expression |
     expression circumflex expression | literal | atom | name
 literal = string | number | number dot [number] | [number] dot number
-decleration = type name equal expression
+declaration = type name equal expression
 type = name | name less type greater
 assignment_statement = name (equal name)* equal expression
 flow_statement = break | pass | continue | return_statement | raise_statement | yield_statement
