@@ -7,7 +7,7 @@ expression = TRUE | FALSE | NONE | epxression PLUS expression | expression MINUS
     expression VBAR expression | expression AMPER expression | LPAR expression RPAR |
     expression DOT NAME | expression LSQB expression RSQB | expression PERCENT expression |
     NOT expression | TILDE expression | expression AND expression | expression OR expression |
-    expression CIRCUMFLEX expression | literal | atom | name
+    expression CIRCUMFLEX expression | function_call | literal | atom | name
 literal = string | NUMBER | NUMBER DOT [NUMBER] | [NUMBER] DOT NUMBER
 declaration = type NAME EQUAL expression
 type = NAME | NAME LESS type GREATER
@@ -30,6 +30,9 @@ decorated = decorators (classdef | functiondef)
 decorators = decorator+
 decorator = AT dotted_name [LPAR arglist RPAR] NEWLINE
 parameters = LPAR (type NAME [EQUAL expression])* RPAR
+function_call = expression LPAR arglist RPAR
+arglist = (argument COMMA)* [argument [COMMA]]
+argument = expression | NAME EQUAL expression
 atom = tuple | list | dict | set
 tuple = expression COMMA (expression COMMA)* [expression [COMMA]]
 list = LSQB (expression COMMA)* [expression [COMMA]] RSQB
