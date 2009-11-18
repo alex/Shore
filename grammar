@@ -2,7 +2,7 @@ input = (NEWLINE | statement)*
 statement = simple_statement | compound_statement
 simple_statement = expression | declaration | assignment_statement | flow_statement |
     import_statement
-expression = TRUE | FALSE | NONE | epxression PLUS expression | expression MINUS expression |
+expression = TRUE | FALSE | NONE | expression PLUS expression | expression MINUS expression |
     expression STAR expression | expression SLASH expression | expression STAR STAR expression |
     expression VBAR expression | expression AMPER expression | LPAR expression RPAR |
     expression DOT NAME | expression LSQB expression RSQB | expression PERCENT expression |
