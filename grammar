@@ -7,7 +7,7 @@ expression = True | False | None | epxression plus expression | expression minus
     expression vbar expression | expression amper expression | lpar expression rpar |
     expression dot name | expression lsqb expression rsqb | expression percent expression |
     not expression | tilde expression | expression and expression | expression or expression |
-    literal | atom | name
+    expression circumflex expression | literal | atom | name
 literal = string | number | number dot [number] | [number] dot number
 decleration = type name equal expression
 type = name | name less type greater

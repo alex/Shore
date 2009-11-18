@@ -38,6 +38,7 @@ class Lexer(object):
         "{": "lbrace",
         "}": "rbrace",
         "~": "tilde",
+        "^": "circumflex",
     }
     
     def __init__(self, text):
