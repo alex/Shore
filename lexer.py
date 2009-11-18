@@ -17,28 +17,28 @@ class Lexer(object):
     ])
     
     symbols = {
-        "@": "decorator",
-        "+": "plus",
-        "-": "minus",
-        "*": "star",
-        "/": "slash",
-        "(": "lpar",
-        ")": "rpar",
-        "[": "lsqb",
-        "]": "rsqb",
-        ":": "colon",
-        ",": "comma",
-        "|": "vbar",
-        "&": "amper",
-        "<": "less",
-        ">": "greater",
-        "=": "equal",
-        ".": "dot",
-        "%": "percent",
-        "{": "lbrace",
-        "}": "rbrace",
-        "~": "tilde",
-        "^": "circumflex",
+        "@": "DECORATOR",
+        "+": "PLUS",
+        "-": "MINUS",
+        "*": "STAR",
+        "/": "SLASH",
+        "(": "LPAR",
+        ")": "RPAR",
+        "[": "LSQB",
+        "]": "RSQB",
+        ":": "COLON",
+        ",": "COMMA",
+        "|": "VBAR",
+        "&": "AMPER",
+        "<": "LESS",
+        ">": "GREATER",
+        "=": "EQUAL",
+        ".": "DOT",
+        "%": "PERCENT",
+        "{": "LBRACE",
+        "}": "RBRACE",
+        "~": "TILDE",
+        "^": "CIRCUMFLEX",
     }
     
     def __init__(self, text):
@@ -53,22 +53,22 @@ class Lexer(object):
             elif len(token.value) > levels[-1]:
                 indents = (len(token.value) - levels[-1]) / 4
                 levels.append(len(token.value))
-                return [Symbol("indent", "") for i in xrange(indents)]
+                return [Symbol("INDENT", "") for i in xrange(indents)]
             elif len(token.value) < levels[-1]:
                 dedents = (levels[-1] - len(token.value)) / 4
                 levels.append(len(token.value))
-                return [Symbol("dedent", "") for i in xrange(dedents)]
+                return [Symbol("DEDENT", "") for i in xrange(dedents)]
         for token in tokens:
-            if token.name == "newline":
+            if token.name == "NEWLINE":
                 yield token
                 next = tokens.next()
-                if next.name == "whitespace":
+                if next.name == "WHITESPACE":
                     result = handle_whitespace(next)
                     for token in result:
                         yield token
                 else:
                     for i in xrange(levels[-1] / 4):
-                        yield Symbol("dedent", "")
+                        yield Symbol("DEDENT", "")
                     yield next
             else:
                 yield token
@@ -96,20 +96,20 @@ class Lexer(object):
                         yield result
 
         if self.state == "number":
-            yield Symbol("number", "".join(self.current_val))
+            yield Symbol("NUMBER", "".join(self.current_val))
         elif self.state == "name":
-            yield Symbol("name", "".join(self.current_val))
+            yield Symbol("NAME", "".join(self.current_val))
     
     def emit_name(self):
         name = "".join(self.current_val)
         self.current_val = []
         if name in self.keywords:
-            return Symbol(name, name)
-        return Symbol("name", name)
+            return Symbol(name.upper(), name)
+        return Symbol("NAME", name)
     
     def string(self, ch):
         if ch == '"':
-            sym = Symbol("string", "".join(self.current_val))
+            sym = Symbol("STRING", "".join(self.current_val))
             self.current_val = []
             self.state = None
             return sym
@@ -134,7 +134,7 @@ class Lexer(object):
         if ch in self.numbers:
             self.current_val.append(ch)
         else:
-            sym = Symbol("number", "".join(self.current_val))
+            sym = Symbol("NUMBER", "".join(self.current_val))
             self.current_val = []
             self.state = None
             return [sym, self.generic(ch)]
@@ -144,7 +144,7 @@ class Lexer(object):
             self.current_val.append(" ")
         else:
             if self.current_val:
-                sym = Symbol("whitespace", "".join(self.current_val))
+                sym = Symbol("WHITESPACE", "".join(self.current_val))
                 self.state = None
                 self.current_val = []
                 return [sym, self.generic(ch)]
@@ -163,8 +163,8 @@ class Lexer(object):
             return
         elif ch == "\n":
             self.state = "newline"
-            return Symbol("newline", "\n")
+            return Symbol("NEWLINE", "\n")
         else:
             if ch in self.symbols:
-                return Symbol(self.symbols[ch], ch)
+                return Symbol(self.symbols[ch].upper(), ch)
             raise ValueError("%s couldn't be parsed" % ch)
