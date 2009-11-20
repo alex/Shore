@@ -23,7 +23,7 @@ class Parser(object):
             if tokens[0].name == "newline":
                 tokens.popleft()
             else:
-                nodes.append(self.parse_statement(), copy(tokens))
+                nodes.append(self.parse_statement(copy(tokens)))
         return NodeList(nodes)
     
     def parse_statement(self, tokens):
