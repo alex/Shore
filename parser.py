@@ -36,3 +36,11 @@ class Parser(object):
         self.states.add((self.assignment_statement, copy(tokens))
         self.states.add((self.flow_statement, copy(tokens))
         self.states.add((self.import_statement, copy(tokens))
+    
+    def expression(self, tokens):
+        if tokens[0].name == "TRUE":
+            tokens.popleft()
+            return BooleanNode(True)
+        elif tokens[0].name == "FALSE":
+            tokens.popleft()
+            return BooleanNode(False)
