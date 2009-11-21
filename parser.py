@@ -11,6 +11,11 @@ class ParseError(object):
     pass
 
 class Parser(object):
+    precedence = (
+        ("right", "UNARY"),
+        ("left", "POWER"),
+    )
+    
     def __init__(self, text):
         self.text = text
         self.tokens = Lexer.tokens
@@ -88,13 +93,15 @@ class Parser(object):
     
     def p_expression_power(self, t):
         """
-        expression : expression STAR STAR expression
+        expression : expression STAR STAR expression %prec POWER
         """
     
     def p_expression_unop(self, t):
         """
-        expression : NOT expression
-                   | TILDE expression
+        expression : NOT expression %prec UNARY
+                   | TILDE expression %prec UNARY
+                   | PLUS expression %prec UNARY
+                   | MINUS expression %prec UNARY
         """
     
     def p_expression_par(self, t):
