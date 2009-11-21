@@ -1,1 +1,1 @@
-PYTHONPATH=.. coverage run tests/lexer.py; coverage html -d html/
+PYTHONPATH=.. coverage run tests/runtests.py; coverage html -d html/

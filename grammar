@@ -8,7 +8,7 @@ expression = TRUE | FALSE | NONE | expression PLUS expression | expression MINUS
     expression DOT NAME | expression LSQB expression RSQB | expression PERCENT expression |
     NOT expression | TILDE expression | expression AND expression | expression OR expression |
     expression CIRCUMFLEX expression | function_call | literal | atom | NAME
-literal = string | NUMBER | NUMBER DOT [NUMBER] | [NUMBER] DOT NUMBER
+literal = STRING | NUMBER | NUMBER DOT [NUMBER] | [NUMBER] DOT NUMBER
 declaration = type NAME EQUAL expression
 type = NAME | NAME LESS type GREATER
 assignment_statement = NAME (EQUAL NAME)* EQUAL expression

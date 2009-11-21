@@ -41,6 +41,9 @@ class Lexer(object):
         "@": "AT",
     }
     
+    tokens = list(set(["NUMBER", "NAME", "INDENT", "DEDENT", "STRING", "NEWLINE"]) |
+        set(symbols.values()) | set(map(lambda s: s.upper(), keywords)))
+    
     def __init__(self, text):
         self.text = text
     
