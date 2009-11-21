@@ -7,7 +7,10 @@ class PLYCompatLexer(object):
         self.token_stream = Lexer(text).parse()
     
     def token(self):
-        return PLYCompatToken(self.token_stream.next())
+        try:
+            return PLYCompatToken(self.token_stream.next())
+        except StopIteration:
+            return None
 
 
 class PLYCompatToken(object):

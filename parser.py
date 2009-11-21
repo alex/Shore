@@ -83,6 +83,16 @@ class Parser(object):
         expression : expression LSQB expression RSQB
         """
     
+    def p_expression_name(self, t):
+        """
+        expression : NAME
+        """
+
+    def p_expression_function_call(self, t):
+        """
+        expression : expression LPAR arglist RPAR
+        """
+    
     def p_number(self, t):
         """
         number : NUMBER
@@ -90,3 +100,154 @@ class Parser(object):
                | NUMBER DOT
                | DOT NUMBER
         """
+    
+    def p_declaration(self, t):
+        """
+        declaration : type NAME EQUAL expression
+        """
+    
+    def p_type(self, t):
+        """
+        type : NAME
+             | NAME LESS type GREATER
+        """
+        # TODO: This doesn't handle dict<str, int>
+    
+    def p_assigment_statement(self, t):
+        """
+        assignment_statement : NAME EQUAL expression
+        """
+        # TODO: extend do support i[j] = k, i.j = k, and anything else needed.
+    
+    def p_flow_statement(self, t):
+        """
+        flow_statement : BREAK
+                       | PASS
+                       | CONTINUE
+                       | return_statement
+                       | raise_statement
+                       | yield_statement
+        """
+    
+    def p_return_statement(self, t):
+        """
+        return_statement : RETURN expression
+        """
+    
+    def p_raise_statement(self, t):
+        """
+        raise_statement : RAISE
+                        | RAISE expression
+        """
+    
+    def p_yield_statement(self, t):
+        """
+        yield_statement : YIELD expression
+        """
+    
+    def p_import_statement(self, t):
+        """
+        import_statement : FROM dotted_name IMPORT NAME
+                         | IMPORT dotted_name
+        """
+        # TODO: Extend to support from a import b, c as well as the add statement
+    
+    def p_dotted_name(self, t):
+        """
+        dotted_name : NAME
+                    | dotted_name DOT NAME
+        """
+    
+    def p_compound_statement(self, t):
+        """
+        compound_statement : if_statement
+                           | while_statement
+                           | for_statement
+                           | function_definition
+                           | class_definition
+                           | decorated
+        """
+    
+    def p_if_statement(self, t):
+        """
+        if_statement : IF expression COLON suite
+                     | IF expression COLON suite ELSE COLON suite
+        """
+        # TODO: Add elif
+    
+    def p_while_statement(self, t):
+        """
+        while_statement : WHILE expression COLON suite
+        """
+    
+    def p_for_statement(self, t):
+        """
+        for_statement : FOR NAME IN expression COLON suite
+        """
+    
+    def p_suite(self, t):
+        """
+        suite : NEWLINE INDENT statements DEDENT
+        """
+    
+    def p_statements(self, t):
+        """
+        statements : statement
+                   | statements statement
+        """
+    
+    def p_function_definition(self, t):
+        """
+        function_definition : type DEF LESS type GREATER NAME parameters COLON suite
+                            | DEF NAME parameters COLON suite
+        """
+        # TODO: This is way too restrictive, it requires a return type to be
+        # templated, and templating only allows a single type
+    
+    def p_class_definition(self, t):
+        """
+        class_definition : CLASS LESS type GREATER NAME parameters COLON suite
+                         | CLASS NAME parameters COLON suite
+        """
+        # TODO: This only allows templating over a single type.
+    
+    def p_decorated(self, t):
+        """
+        decorated : decorators class_definition
+                  | decorators function_definition
+        """
+    
+    def p_decorators(self, t):
+        """
+        decorators : decorator
+                   | decorators decorator
+        """
+    
+    def p_decorator(self, t):
+        """
+        decorator : AT dotted_name NEWLINE
+                  | AT dotted_name LPAR arglist RPAR NEWLINE
+        """
+    
+    def p_parameters(self, t):
+        """
+        parameters : LPAR RPAR
+                   | LPAR type NAME RPAR
+        """
+        # TODO: This supports taking 0 or 1 params now, and doesn't allow
+        # default arguments
+    
+    def p_arglist(self, t):
+        """
+        arglist : argument
+                | arglist COMMA argument
+        """
+        # TODO: Trailing commas should be allowed
+    
+    def p_argument(self, t):
+        """
+        argument : expression 
+                 | NAME EQUAL expression
+        """
+    
+    # TODO: Support atoms (tuple, list, dict, set)
