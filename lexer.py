@@ -9,10 +9,10 @@ class Lexer(object):
     name_chars = name_start_chars + numbers
     
     keywords = frozenset([
-        "and", "as", "break", "class", "continue", "def", "del", "elif", "else",
+        "and", "break", "class", "continue", "def", "elif", "else",
         "except", "finally", "for", "from", "if", "import", "in", "is", "not",
         "or", "pass", "raise", "return", "try", "while", "yield", "True",
-        "False", "None"
+        "False", "None", # "as", "with",
     ])
     
     symbols = {
@@ -39,6 +39,7 @@ class Lexer(object):
         "~": "TILDE",
         "^": "CIRCUMFLEX",
         "@": "AT",
+        "!": "EXCL",
     }
     
     tokens = list(set(["NUMBER", "NAME", "INDENT", "DEDENT", "STRING", "NEWLINE"]) |

@@ -7,6 +7,9 @@ from shore.lexer import Lexer
 from shore.utils import PLYCompatLexer
 
 
+class ParseError(object):
+    pass
+
 class Parser(object):
     def __init__(self, text):
         self.text = text
@@ -15,6 +18,9 @@ class Parser(object):
     
     def parse(self):
         return self.parser.parse(lexer=PLYCompatLexer(self.text))
+    
+    def p_error(self, t):
+        raise ParseError
     
     def p_input(self, t):
         """
@@ -62,6 +68,24 @@ class Parser(object):
                    | expression OR expression
         """
     
+    def p_expression_comp(self, t):
+        """
+        expression : expression EQUAL EQUAL expression
+                   | expression EXCL EQUAL expression
+                   | expression LESS expression
+                   | expression GREATER expression
+                   | expression LESS EQUAL expression
+                   | expression GREATER EQUAL expression
+                   | expression IS expression
+                   | expression IS NOT expression
+        """
+    
+    def p_expression_in(self, t):
+        """
+        expression : expression IN expression
+                   | expression NOT IN expression
+        """
+    
     def p_expression_power(self, t):
         """
         expression : expression STAR STAR expression
@@ -103,15 +127,19 @@ class Parser(object):
     
     def p_declaration(self, t):
         """
-        declaration : type NAME EQUAL expression
+        declaration : expression NAME EQUAL expression
         """
     
-    def p_type(self, t):
+    def p_expression_type(self, t):
         """
-        type : NAME
-             | NAME LESS type GREATER
+        expression : NAME LESS expressions GREATER
         """
-        # TODO: This doesn't handle dict<str, int>
+    
+    def p_expressions(self, t):
+        """
+        expressions : expression
+                    | expressions COMMA expression
+        """
     
     def p_assigment_statement(self, t):
         """
@@ -161,6 +189,7 @@ class Parser(object):
     def p_compound_statement(self, t):
         """
         compound_statement : if_statement
+                           | try_statement
                            | while_statement
                            | for_statement
                            | function_definition
@@ -172,8 +201,21 @@ class Parser(object):
         """
         if_statement : IF expression COLON suite
                      | IF expression COLON suite ELSE COLON suite
+                     | IF expression COLON suite elifs
+                     | IF expression COLON suite elifs ELSE COLON suite
         """
-        # TODO: Add elif
+    
+    def p_elifs(self, t):
+        """
+        elifs : ELIF expression COLON suite
+              | elifs ELIF expression COLON suite
+        """
+    
+    def p_try_statement(self, t):
+        """
+        try_statement : TRY COLON suite EXCEPT COLON suite
+                      | TRY COLON suite EXCEPT FINALLY COLON suite
+        """
     
     def p_while_statement(self, t):
         """
@@ -198,7 +240,7 @@ class Parser(object):
     
     def p_function_definition(self, t):
         """
-        function_definition : type DEF LESS type GREATER NAME parameters COLON suite
+        function_definition : expression DEF LESS expression GREATER NAME parameters COLON suite
                             | DEF NAME parameters COLON suite
         """
         # TODO: This is way too restrictive, it requires a return type to be
@@ -206,7 +248,7 @@ class Parser(object):
     
     def p_class_definition(self, t):
         """
-        class_definition : CLASS LESS type GREATER NAME parameters COLON suite
+        class_definition : CLASS LESS expression GREATER NAME parameters COLON suite
                          | CLASS NAME parameters COLON suite
         """
         # TODO: This only allows templating over a single type.
@@ -232,7 +274,7 @@ class Parser(object):
     def p_parameters(self, t):
         """
         parameters : LPAR RPAR
-                   | LPAR type NAME RPAR
+                   | LPAR expression NAME RPAR
         """
         # TODO: This supports taking 0 or 1 params now, and doesn't allow
         # default arguments
