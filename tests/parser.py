@@ -36,6 +36,9 @@ class ParserTest(unittest.TestCase):
         self.assert_parses("""val[2]""", [
             ("SubscriptNode", ("NameNode", "val"), ("IntegerNode", "2")),
         ])
+        self.assert_parses(""".4 / 4.""", [
+            ("BinOpNode", ("FloatNode", "0.4"), ("FloatNode", "4.0"), "/"),
+        ])
 
 if __name__ == "__main__":
     unittest.main()

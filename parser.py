@@ -185,7 +185,7 @@ class Parser(object):
         if len(t) == 4:
             t[0] = ast.FloatNode("%s.%s" % (t[1], t[3]))
         else:
-            if t[1] == "DOT":
+            if t[1] == ".":
                 t[0] = ast.FloatNode("0.%s" % t[2])
             else:
                 t[0] = ast.FloatNode("%s.0" % t[1])
