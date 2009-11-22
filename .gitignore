@@ -2,3 +2,4 @@
 *.pyo
 .coverage
 parser.out
+parsetab.py

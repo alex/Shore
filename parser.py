@@ -36,9 +36,15 @@ class Parser(object):
               | input statement
         """
         if len(t) == 2:
-            t[0] = ast.NodeList([t[1]])
+            if t[1] == "\n":
+                t[0] = ast.NodeList([])
+            else:
+                t[0] = ast.NodeList([t[1]])
         else:
-            t[0] = ast.NodeList(t[1].nodes + [t[2]])
+            if t[2] == "\n":
+                t[0] = t[1]
+            else:
+                t[0] = ast.NodeList(t[1].nodes + [t[2]])
     
     def p_statement(self, t):
         """
@@ -182,6 +188,7 @@ class Parser(object):
         """
         declaration : expression NAME EQUAL expression
         """
+        t[0] = ast.DeclarationNode(t[1], t[2], t[4])
     
     def p_expression_type(self, t):
         """

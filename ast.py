@@ -3,7 +3,7 @@ class NodeList(object):
         self.nodes = nodes
     
     def __repr__(self):
-        return "[%s]" % "\n".join(map(repr, self.nodes))
+        return "[%s]" % ", ".join(map(repr, self.nodes))
     
     def __eq__(self, other):
         if isinstance(other, NodeList):
@@ -37,6 +37,9 @@ class IntegerNode(object):
     def __init__(self, value):
         self.value = value
     
+    def __repr__(self):
+        return "(%r, %r)" % (type(self).__name__, self.value)
+
     def __eq__(self, other):
         if isinstance(other, IntegerNode):
             return self.value == other.value
@@ -46,6 +49,14 @@ class IntegerNode(object):
 class FloatNode(object):
     def __init__(self, value):
         self.value = value
+    
+    def __repr__(self):
+        return "(%r, %r)" % (type(self).__name__, self.value)
+
+    def __eq__(self, other):
+        if isinstance(other, FloatNode):
+            return self.value == other.value
+        return other[0] == type(self).__name__ and other[1] == self.value
 
 
 class BinOpNode(object):
@@ -86,3 +97,28 @@ class UnaryOpNode(object):
 class NameNode(object):
     def __init__(self, name):
         self.name = name
+    
+    def __repr__(self):
+        return "(%r, %r)" % (type(self).__name__, self.name)
+    
+    def __eq__(self, other):
+        if isinstance(other, NameNode):
+            return self.name == other.name
+        return other[0] == type(self).__name__ and other[1] == self.name
+
+
+class DeclarationNode(object):
+    def __init__(self, type, name, value):
+        self.type = type
+        self.name = name
+        self.value = value
+    
+    def __repr__(self):
+        return "(%r, %r, %r, %r)" % (type(self).__name__, self.type, self.name, self.value)
+    
+    def __eq__(self, other):
+        if isinstance(other, DeclarationNode):
+            return (self.type == other.type and self.name == other.name and
+                self.value == other.value)
+        return (other[0] == type(self).__name__ and other[1] == self.type and
+            other[2] == self.name and other[3] == self.value)
