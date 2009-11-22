@@ -3,17 +3,18 @@ from copy import copy
 
 from ply import yacc
 
+from shore import ast
 from shore.lexer import Lexer
 from shore.utils import PLYCompatLexer
 
 
-class ParseError(object):
+class ParseError(Exception):
     pass
 
 class Parser(object):
     precedence = (
-        ("right", "UNARY"),
         ("left", "POWER"),
+        ("right", "UNARY"),
     )
     
     def __init__(self, text):
@@ -31,15 +32,20 @@ class Parser(object):
         """
         input : NEWLINE
               | statement
-              | NEWLINE input
-              | statement input
+              | input NEWLINE
+              | input statement
         """
+        if len(t) == 2:
+            t[0] = [t[1]]
+        else:
+            t[0] = t[1] + [t[2]]
     
     def p_statement(self, t):
         """
         statement : simple_statement
                   | compound_statement
         """
+        t[0] = t[1]
     
     def p_simple_statement(self, t):
         """
@@ -49,16 +55,31 @@ class Parser(object):
                          | flow_statement
                          | import_statement
         """
+        t[0] = t[1]
     
-    def p_expression_constant(self, t):
+    def p_expression_bool(self, t):
         """
         expression : TRUE
                    | FALSE
-                   | NONE
-                   | STRING
-                   | number
         """
+        val = {
+            "TRUE": True,
+            "FALSE": False,
+        }
+        t[0] = ast.BooleanNode(val[t[1]])
     
+    def p_expression_none(self, t):
+        """
+        expression : NONE
+        """
+        t[0] = ast.NoneNode()
+    
+    def p_expression_string(self, t):
+        """
+        expression : STRING
+        """
+        t[0] = ast.StringNode(t[1])
+        
     def p_expression_binop(self, t):
         """
         expression : expression PLUS expression
@@ -72,6 +93,7 @@ class Parser(object):
                    | expression AND expression
                    | expression OR expression
         """
+        t[0] = ast.BinOpNode(t[1], t[3], t[2])
     
     def p_expression_comp(self, t):
         """
@@ -84,17 +106,26 @@ class Parser(object):
                    | expression IS expression
                    | expression IS NOT expression
         """
+        if len(t) == 5:
+            t[0] = ast.CompNode(t[1], t[4], t[2] + t[3])
+        else:
+            t[0] = ast.CompNode(t[1], t[3], [2])
     
     def p_expression_in(self, t):
         """
         expression : expression IN expression
                    | expression NOT IN expression
         """
+        if len(t) == 4:
+            t[0] = ast.ContainsNode(t[1], t[3])
+        else:
+            t[0] = ast.UnaryOpNode(ast.ContainsNode(t[1], t[4]), "NOT")
     
     def p_expression_power(self, t):
         """
         expression : expression STAR STAR expression %prec POWER
         """
+        t[0] = ast.BinOpNode(t[1], t[4], "**")
     
     def p_expression_unop(self, t):
         """
@@ -103,11 +134,13 @@ class Parser(object):
                    | PLUS expression %prec UNARY
                    | MINUS expression %prec UNARY
         """
+        t[0] = ast.UnaryOpNode(t[2], t[1])
     
     def p_expression_par(self, t):
         """
         expression : LPAR expression RPAR
         """
+        t[0] = t[2]
     
     def p_expression_subscript(self, t):
         """
@@ -124,13 +157,25 @@ class Parser(object):
         expression : expression LPAR arglist RPAR
         """
     
-    def p_number(self, t):
+    def p_expression_int(self, t):
         """
-        number : NUMBER
-               | NUMBER DOT NUMBER
-               | NUMBER DOT
-               | DOT NUMBER
+        expression : NUMBER
         """
+        t[0] = ast.IntegerNode(t[1])
+    
+    def p_expression_float(self, t):
+        """
+        expression : NUMBER DOT NUMBER
+                   | NUMBER DOT
+                   | DOT NUMBER
+        """
+        if len(t) == 4:
+            t[0] = ast.FloatNode("%s.%s" % (t[1], t[3]))
+        else:
+            if t[1] == "DOT":
+                t[0] = ast.FloatNode("0.%s" % t[2])
+            else:
+                t[0] = ast.FloatNode("%s.0" % t[1])
     
     def p_declaration(self, t):
         """
@@ -151,8 +196,9 @@ class Parser(object):
     def p_assigment_statement(self, t):
         """
         assignment_statement : NAME EQUAL expression
+                             | expression DOT NAME EQUAL expression
+                             | expression LSQB expression RSQB EQUAL expression
         """
-        # TODO: extend do support i[j] = k, i.j = k, and anything else needed.
     
     def p_flow_statement(self, t):
         """
@@ -185,7 +231,7 @@ class Parser(object):
         import_statement : FROM dotted_name IMPORT NAME
                          | IMPORT dotted_name
         """
-        # TODO: Extend to support from a import b, c as well as the add statement
+        # TODO: Extend to support from a import b, c as well as the as statement
     
     def p_dotted_name(self, t):
         """
