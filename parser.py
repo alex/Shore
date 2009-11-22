@@ -157,6 +157,7 @@ class Parser(object):
         """
         expression : expression LSQB expression RSQB
         """
+        t[0] = ast.SubscriptNode(t[1], t[3])
     
     def p_expression_name(self, t):
         """

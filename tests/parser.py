@@ -33,6 +33,9 @@ class ParserTest(unittest.TestCase):
         self.assert_parses("""val is not None""", [
             ("UnaryOpNode", ("CompNode", ("NameNode", "val"), ("NoneNode",), "is"), "not"),
         ])
+        self.assert_parses("""val[2]""", [
+            ("SubscriptNode", ("NameNode", "val"), ("IntegerNode", "2")),
+        ])
 
 if __name__ == "__main__":
     unittest.main()

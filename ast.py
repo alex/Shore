@@ -1,3 +1,17 @@
+class BaseNode(object):
+    attrs = []
+    
+    def __repr__(self):
+        return "(%r, %s)" % (
+            type(self).__name__, ", ".join(repr(getattr(self, attr)) for attr in self.attrs)
+        )
+    
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return all(getattr(self, attr) == getattr(other, attr) for attr in self.attrs)
+        return (other[0] == type(self).__name__ and
+            all(getattr(self, attr) == other[i+1] for i, attr in enumerate(self.attrs)))
+
 class NodeList(object):
     def __init__(self, nodes):
         self.nodes = nodes
@@ -11,17 +25,11 @@ class NodeList(object):
         return self.nodes == other
 
 
-class BooleanNode(object):
+class BooleanNode(BaseNode):
+    attrs = ["value"]
+    
     def __init__(self, value):
         self.value = value
-    
-    def __repr__(self):
-        return "(%r, %r)" % (type(self).__name__, self.value)
-    
-    def __eq__(self, other):
-        if isinstance(other, BooleanNode):
-            return self.value == other.value
-        return other[0] == type(self).__name__ and other[1] == self.value
 
 
 class NoneNode(object):
@@ -34,131 +42,78 @@ class NoneNode(object):
         return other[0] == type(self).__name__
 
 
-class StringNode(object):
+class StringNode(BaseNode):
+    attrs = ["value"]
+    
+    def __init__(self, value):
+        self.value = value
+
+
+class IntegerNode(BaseNode):
+    attrs = ["value"]
+
     def __init__(self, value):
         self.value = value
     
-    def __repr__(self):
-        return "(%r, %r)" % (type(self).__name__, self.value)
+
+class FloatNode(BaseNode):
+    attrs = ["value"]
     
-    def __eq__(self, other):
-        if isinstance(other, StringNode):
-            return self.value == other.value
-        return other[0] == type(self).__name__ and other[1] == self.value
-
-
-class IntegerNode(object):
     def __init__(self, value):
         self.value = value
     
-    def __repr__(self):
-        return "(%r, %r)" % (type(self).__name__, self.value)
 
-    def __eq__(self, other):
-        if isinstance(other, IntegerNode):
-            return self.value == other.value
-        return other[0] == type(self).__name__ and other[1] == self.value
-
-
-class FloatNode(object):
-    def __init__(self, value):
-        self.value = value
+class BinOpNode(BaseNode):
+    attrs = ["left", "right", "op"]
     
-    def __repr__(self):
-        return "(%r, %r)" % (type(self).__name__, self.value)
-
-    def __eq__(self, other):
-        if isinstance(other, FloatNode):
-            return self.value == other.value
-        return other[0] == type(self).__name__ and other[1] == self.value
-
-
-class BinOpNode(object):
     def __init__(self, left, right, op):
         self.left = left
         self.right = right
         self.op = op
+
+
+class CompNode(BaseNode):
+    attrs = ["left", "right", "op"]
     
-    def __repr__(self):
-        return "(%r, %r, %r, %r)" % (type(self).__name__, self.left, self.right, self.op)
-
-    def __eq__(self, other):
-        if isinstance(other, BinOpNode):
-            return self.left == other.left and self.right == other.right and self.op == other.op
-        return (other[0] == type(self).__name__ and other[1] == self.left and
-            other[2] == self.right and other[3] == self.op)
-
-
-class CompNode(object):
     def __init__(self, left, right, op):
         self.left = left
         self.right = right
         self.op = op
-    
-    def __repr__(self):
-        return "(%r, %r, %r, %r)" % (type(self).__name__, self.left, self.right, self.op)
-    
-    def __eq__(self, other):
-        if isinstance(other, CompNode):
-            return self.left == other.left and self.right == other.right and self.op == other.op
-        return (other[0] == type(self).__name__ and other[1] == self.left and
-            other[2] == self.right and other[3] == self.op)
 
-
-class ContainsNode(object):
+class ContainsNode(BaseNode):
+    attrs = ["obj", "seq"]
+    
     def __init__(self, obj, seq):
         self.obj = obj
         self.seq = seq
-    
-    def __repr__(self):
-        return "(%r, %r, %r)" % (type(self).__name__, self.obj, self.seq)
-    
-    def __eq__(self, other):
-        if isinstance(other, ContainsNode):
-            return self.obj == other.obj and self.seq == other.seq
-        return (other[0] == type(self).__name__ and other[1] == self.obj and
-            other[2] == self.seq)
 
-
-class UnaryOpNode(object):
+class UnaryOpNode(BaseNode):
+    attrs = ["value", "op"]
+    
     def __init__(self, value, op):
         self.value = value
         self.op = op
     
-    def __repr__(self):
-        return "(%r, %r, %r)" % (type(self).__name__, self.value, self.op)
+
+class NameNode(BaseNode):
+    attrs = ["name"]
     
-    def __eq__(self, other):
-        if isinstance(other, UnaryOpNode):
-            return self.value == other.value and self.op == other.op
-        return other[0] == type(self).__name__ and other[1] == self.value and other[2] == self.op
-
-
-class NameNode(object):
     def __init__(self, name):
         self.name = name
-    
-    def __repr__(self):
-        return "(%r, %r)" % (type(self).__name__, self.name)
-    
-    def __eq__(self, other):
-        if isinstance(other, NameNode):
-            return self.name == other.name
-        return other[0] == type(self).__name__ and other[1] == self.name
 
 
-class DeclarationNode(object):
+class DeclarationNode(BaseNode):
+    attrs = ["type", "name", "value"]
+    
     def __init__(self, type, name, value):
         self.type = type
         self.name = name
         self.value = value
+
+
+class SubscriptNode(BaseNode):
+    attrs = ["value", "index"]
     
-    def __repr__(self):
-        return "(%r, %r, %r, %r)" % (type(self).__name__, self.type, self.name, self.value)
-    
-    def __eq__(self, other):
-        if isinstance(other, DeclarationNode):
-            return (self.type == other.type and self.name == other.name and
-                self.value == other.value)
-        return (other[0] == type(self).__name__ and other[1] == self.type and
-            other[2] == self.name and other[3] == self.value)
+    def __init__(self, value, index):
+        self.value = value
+        self.index = index
