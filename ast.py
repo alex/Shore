@@ -1,6 +1,11 @@
 class NodeList(object):
     def __init__(self, nodes):
         self.nodes = nodes
+    
+    def __eq__(self, other):
+        if isinstance(other, NodeList):
+            return self.nodes == other.nodes
+        return self.nodes == other
 
 
 class BooleanNode(object):

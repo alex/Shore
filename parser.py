@@ -36,9 +36,9 @@ class Parser(object):
               | input statement
         """
         if len(t) == 2:
-            t[0] = [t[1]]
+            t[0] = ast.NodeList([t[1]])
         else:
-            t[0] = t[1] + [t[2]]
+            t[0] = ast.NodeList(t[1].nodes + [t[2]])
     
     def p_statement(self, t):
         """
