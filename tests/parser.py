@@ -21,6 +21,12 @@ class ParserTest(unittest.TestCase):
             ("DeclarationNode", ("NameNode", "int"), "a", ("IntegerNode", "3")),
             ("DeclarationNode", ("NameNode", "float"), "c", ("BinOpNode", ("NameNode", "a"), ("FloatNode", "4.5"), "+")),
         ])
+        self.assert_parses("""bool b = "a" in seq""", [
+            ("DeclarationNode", ("NameNode", "bool"), "b", ("ContainsNode", ("StringNode", "a"), ("NameNode", "seq")))
+        ])
+        self.assert_parses("""b not in seq""", [
+            ("UnaryOpNode", ("ContainsNode", ("NameNode", "b"), ("NameNode", "seq")), "not")
+        ])
 
 if __name__ == "__main__":
     unittest.main()

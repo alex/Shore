@@ -31,6 +31,14 @@ class NoneNode(object):
 class StringNode(object):
     def __init__(self, value):
         self.value = value
+    
+    def __repr__(self):
+        return "(%r, %r)" % (type(self).__name__, self.value)
+    
+    def __eq__(self, other):
+        if isinstance(other, StringNode):
+            return self.value == other.value
+        return other[0] == type(self).__name__ and other[1] == self.value
 
 
 class IntegerNode(object):
@@ -83,15 +91,32 @@ class CompOpNode(object):
 
 
 class ContainsNode(object):
-    def __init__(self, seq, obj):
-        self.seq = seq
+    def __init__(self, obj, seq):
         self.obj = obj
+        self.seq = seq
+    
+    def __repr__(self):
+        return "(%r, %r, %r)" % (type(self).__name__, self.obj, self.seq)
+    
+    def __eq__(self, other):
+        if isinstance(other, ContainsNode):
+            return self.obj == other.obj and self.seq == other.seq
+        return (other[0] == type(self).__name__ and other[1] == self.obj and
+            other[2] == self.seq)
 
 
 class UnaryOpNode(object):
     def __init__(self, value, op):
         self.value = value
         self.op = op
+    
+    def __repr__(self):
+        return "(%r, %r, %r)" % (type(self).__name__, self.value, self.op)
+    
+    def __eq__(self, other):
+        if isinstance(other, UnaryOpNode):
+            return self.value == other.value and self.op == other.op
+        return other[0] == type(self).__name__ and other[1] == self.value and other[2] == self.op
 
 
 class NameNode(object):

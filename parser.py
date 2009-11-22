@@ -125,7 +125,7 @@ class Parser(object):
         if len(t) == 4:
             t[0] = ast.ContainsNode(t[1], t[3])
         else:
-            t[0] = ast.UnaryOpNode(ast.ContainsNode(t[1], t[4]), "NOT")
+            t[0] = ast.UnaryOpNode(ast.ContainsNode(t[1], t[4]), "not")
     
     def p_expression_power(self, t):
         """
