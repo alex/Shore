@@ -63,8 +63,8 @@ class Parser(object):
                    | FALSE
         """
         val = {
-            "TRUE": True,
-            "FALSE": False,
+            "True": True,
+            "False": False,
         }
         t[0] = ast.BooleanNode(val[t[1]])
     
@@ -151,6 +151,7 @@ class Parser(object):
         """
         expression : NAME
         """
+        t[0] = ast.NameNode(t[1])
 
     def p_expression_function_call(self, t):
         """

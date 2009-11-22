@@ -14,6 +14,9 @@ class ParserTest(unittest.TestCase):
         self.assert_parses("""3 + 4""", [
             ("BinOpNode", ("IntegerNode", "3"), ("IntegerNode", "4"), "+"),
         ])
+        self.assert_parses("""True or False""", [
+            ("BinOpNode", ("BooleanNode", True), ("BooleanNode", False), "or"),
+        ])
 
 if __name__ == "__main__":
     unittest.main()

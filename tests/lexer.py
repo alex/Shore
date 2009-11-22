@@ -65,6 +65,12 @@ class LexerTest(unittest.TestCase):
             ("EQUAL", "="),
             ("NAME", "a")
         ])
+        
+        self.assert_lexes("""True or False""", [
+            ("TRUE", "True"),
+            ("OR", "or"),
+            ("FALSE", "False"),
+        ])
     
     def test_math(self):
         self.assert_lexes("""a = 3\nb = a*2 - a/9""", [

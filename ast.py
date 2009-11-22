@@ -2,6 +2,9 @@ class NodeList(object):
     def __init__(self, nodes):
         self.nodes = nodes
     
+    def __repr__(self):
+        return "[%s]" % "\n".join(map(repr, self.nodes))
+    
     def __eq__(self, other):
         if isinstance(other, NodeList):
             return self.nodes == other.nodes
@@ -11,6 +14,9 @@ class NodeList(object):
 class BooleanNode(object):
     def __init__(self, value):
         self.value = value
+    
+    def __repr__(self):
+        return "(%r, %r)" % (type(self).__name__, self.value)
     
     def __eq__(self, other):
         if isinstance(other, BooleanNode):
@@ -47,6 +53,9 @@ class BinOpNode(object):
         self.left = left
         self.right = right
         self.op = op
+    
+    def __repr__(self):
+        return "(%r, %r, %r, %r)" % (type(self).__name__, self.left, self.right, self.op)
 
     def __eq__(self, other):
         if isinstance(other, BinOpNode):

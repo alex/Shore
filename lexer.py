@@ -102,8 +102,8 @@ class Lexer(object):
         if self.state == "number":
             yield Symbol("NUMBER", "".join(self.current_val))
         elif self.state == "name":
-            yield Symbol("NAME", "".join(self.current_val))
-    
+            yield self.emit_name()
+            
     def emit_name(self):
         name = "".join(self.current_val)
         self.current_val = []
