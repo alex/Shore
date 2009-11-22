@@ -26,7 +26,7 @@ class Parser(object):
         return self.parser.parse(lexer=PLYCompatLexer(self.text))
     
     def p_error(self, t):
-        raise ParseError
+        raise ParseError(t)
     
     def p_input(self, t):
         """
@@ -200,12 +200,17 @@ class Parser(object):
         """
         expression : NAME LESS expressions GREATER
         """
+        t[0] = ast.TemplateNode(t[1], t[3])
     
     def p_expressions(self, t):
         """
         expressions : expression
                     | expressions COMMA expression
         """
+        if len(t) == 2:
+            t[0] = [t[1]]
+        else:
+            t[0] = t[1] + [t[3]]
     
     def p_assigment_statement(self, t):
         """

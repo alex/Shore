@@ -19,3 +19,6 @@ class PLYCompatToken(object):
         self.value = token.value
         self.lineno = None
         self.lexpos = None
+    
+    def __repr__(self):
+        return "<Token: %r %r>" % (self.type, self.value)
