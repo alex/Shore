@@ -27,6 +27,12 @@ class ParserTest(unittest.TestCase):
         self.assert_parses("""b not in seq""", [
             ("UnaryOpNode", ("ContainsNode", ("NameNode", "b"), ("NameNode", "seq")), "not")
         ])
+        self.assert_parses("""val is None""", [
+            ("CompNode", ("NameNode", "val"), ("NoneNode",), "is"),
+        ])
+        self.assert_parses("""val is not None""", [
+            ("UnaryOpNode", ("CompNode", ("NameNode", "val"), ("NoneNode",), "is"), "not"),
+        ])
 
 if __name__ == "__main__":
     unittest.main()

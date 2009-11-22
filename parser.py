@@ -110,12 +110,17 @@ class Parser(object):
                    | expression LESS EQUAL expression
                    | expression GREATER EQUAL expression
                    | expression IS expression
-                   | expression IS NOT expression
         """
         if len(t) == 5:
             t[0] = ast.CompNode(t[1], t[4], t[2] + t[3])
         else:
-            t[0] = ast.CompNode(t[1], t[3], [2])
+            t[0] = ast.CompNode(t[1], t[3], t[2])
+    
+    def p_expression_is_not(self, t):
+        """
+        expression : expression IS NOT expression
+        """
+        t[0] = ast.UnaryOpNode(ast.CompNode(t[1], t[4], "is"), "not")
     
     def p_expression_in(self, t):
         """

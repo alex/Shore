@@ -25,7 +25,13 @@ class BooleanNode(object):
 
 
 class NoneNode(object):
-    pass
+    def __repr__(self):
+        return "(%r)" % type(self).__name__
+    
+    def __eq__(self, other):
+        if isinstance(other, NoneNode):
+            return True
+        return other[0] == type(self).__name__
 
 
 class StringNode(object):
@@ -83,11 +89,20 @@ class BinOpNode(object):
             other[2] == self.right and other[3] == self.op)
 
 
-class CompOpNode(object):
+class CompNode(object):
     def __init__(self, left, right, op):
         self.left = left
         self.right = right
         self.op = op
+    
+    def __repr__(self):
+        return "(%r, %r, %r, %r)" % (type(self).__name__, self.left, self.right, self.op)
+    
+    def __eq__(self, other):
+        if isinstance(other, CompNode):
+            return self.left == other.left and self.right == other.right and self.op == other.op
+        return (other[0] == type(self).__name__ and other[1] == self.left and
+            other[2] == self.right and other[3] == self.op)
 
 
 class ContainsNode(object):
