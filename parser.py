@@ -13,6 +13,8 @@ class ParseError(Exception):
 
 class Parser(object):
     precedence = (
+        ("left", "PLUS", "MINUS"),
+        ("left", "STAR", "SLASH"),
         ("left", "POWER"),
         ("right", "UNARY"),
     )
