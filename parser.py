@@ -13,6 +13,7 @@ class ParseError(Exception):
 
 class Parser(object):
     precedence = (
+        ("nonassoc", "COMPARISON"),
         ("left", "PLUS", "MINUS"),
         ("left", "STAR", "SLASH"),
         ("left", "POWER"),
@@ -105,13 +106,13 @@ class Parser(object):
     
     def p_expression_comp(self, t):
         """
-        expression : expression EQUAL EQUAL expression
-                   | expression EXCL EQUAL expression
-                   | expression LESS expression
-                   | expression GREATER expression
-                   | expression LESS EQUAL expression
-                   | expression GREATER EQUAL expression
-                   | expression IS expression
+        expression : expression EQUAL EQUAL expression %prec COMPARISON
+                   | expression EXCL EQUAL expression %prec COMPARISON
+                   | expression LESS expression %prec COMPARISON
+                   | expression GREATER expression %prec COMPARISON
+                   | expression LESS EQUAL expression %prec COMPARISON
+                   | expression GREATER EQUAL expression %prec COMPARISON
+                   | expression IS expression %prec COMPARISON
         """
         if len(t) == 5:
             t[0] = ast.CompNode(t[1], t[4], t[2] + t[3])
@@ -120,7 +121,7 @@ class Parser(object):
     
     def p_expression_is_not(self, t):
         """
-        expression : expression IS NOT expression
+        expression : expression IS NOT expression %prec COMPARISON
         """
         t[0] = ast.UnaryOpNode(ast.CompNode(t[1], t[4], "is"), "not")
     
