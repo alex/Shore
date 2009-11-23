@@ -288,6 +288,7 @@ class Parser(object):
         try_statement : TRY COLON suite EXCEPT COLON suite
                       | TRY COLON suite EXCEPT FINALLY COLON suite
         """
+        # TODO: Finally without except.
     
     def p_while_statement(self, t):
         """
