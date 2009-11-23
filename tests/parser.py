@@ -39,7 +39,10 @@ class ParserTest(unittest.TestCase):
         self.assert_parses(""".4 / 4.""", [
             ("BinOpNode", ("FloatNode", "0.4"), ("FloatNode", "4.0"), "/"),
         ])
-        self.assert_parses("""dict<str, int> c = None""", [
+        self.assert_parses("""str c = None""", [
+            ("DeclarationNode", ("NameNode", "str"), "c", ("NoneNode",))
+        ])
+        self.assert_parses("""list<str> c = None""", [
             ("DeclarationNode", ("TemplateNode", ("NameNode", "dict"), [("NameNode", "str"), ("NameNode", "int")]), "c", ("NoneNode",)),
         ])
 
