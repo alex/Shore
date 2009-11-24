@@ -14,8 +14,9 @@ class ParseError(Exception):
 class Parser(object):
     precedence = (
         ("nonassoc", "COMPARISON"),
+        ("left", "AMPER", "VBAR", "CIRCUMFLEX"),
         ("left", "PLUS", "MINUS"),
-        ("left", "STAR", "SLASH"),
+        ("left", "STAR", "SLASH", "PERCENT"),
         ("left", "POWER"),
         ("right", "UNARY"),
     )
