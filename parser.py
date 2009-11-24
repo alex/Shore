@@ -113,8 +113,8 @@ class Parser(object):
                    | expression NE expression %prec COMPARISON
                    | expression LESS expression %prec COMPARISON
                    | expression GREATER expression %prec COMPARISON
-                   | expression LESS EQUAL expression %prec COMPARISON
-                   | expression GREATER EQUAL expression %prec COMPARISON
+                   | expression LE expression %prec COMPARISON
+                   | expression GE expression %prec COMPARISON
                    | expression IS expression %prec COMPARISON
         """
         if len(t) == 5:

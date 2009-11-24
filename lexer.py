@@ -42,10 +42,12 @@ class Lexer(object):
         "**": "STARSTAR",
         "!=": "NE",
         "==": "EQEQ",
+        "<=": "LE",
+        ">=": "GE",
     }
     
     # These are the start characters for various 2 char symbols, such as STAR STAR.
-    long_symbols = frozenset("*!=")
+    long_symbols = frozenset("*!=<>")
     
     tokens = list(set(["NUMBER", "NAME", "INDENT", "DEDENT", "STRING", "NEWLINE"]) |
         set(symbols.values()) | set(map(lambda s: s.upper(), keywords)))
