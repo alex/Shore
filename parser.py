@@ -117,10 +117,7 @@ class Parser(object):
                    | expression GE expression %prec COMPARISON
                    | expression IS expression %prec COMPARISON
         """
-        if len(t) == 5:
-            t[0] = ast.CompNode(t[1], t[4], t[2] + t[3])
-        else:
-            t[0] = ast.CompNode(t[1], t[3], t[2])
+        t[0] = ast.CompNode(t[1], t[3], t[2])
     
     def p_expression_is_not(self, t):
         """
