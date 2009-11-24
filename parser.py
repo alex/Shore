@@ -19,7 +19,7 @@ class Parser(object):
         ("left", "PLUS", "MINUS"),
         ("left", "STAR", "SLASH", "PERCENT"),
         ("right", "UNARY"),
-        ("right", "POWER"),
+        ("right", "STARSTAR"),
     )
     
     def __init__(self, text):
@@ -103,7 +103,7 @@ class Parser(object):
                    | expression PERCENT expression
                    | expression AND expression
                    | expression OR expression
-                   | expression STARSTAR expression %prec POWER
+                   | expression STARSTAR expression
         """
         t[0] = ast.BinOpNode(t[1], t[3], t[2])
     
