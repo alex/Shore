@@ -109,8 +109,8 @@ class Parser(object):
     
     def p_expression_comp(self, t):
         """
-        expression : expression EQUAL EQUAL expression %prec COMPARISON
-                   | expression EXCL EQUAL expression %prec COMPARISON
+        expression : expression EQEQ expression %prec COMPARISON
+                   | expression NE expression %prec COMPARISON
                    | expression LESS expression %prec COMPARISON
                    | expression GREATER expression %prec COMPARISON
                    | expression LESS EQUAL expression %prec COMPARISON
