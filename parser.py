@@ -17,8 +17,8 @@ class Parser(object):
         ("left", "AMPER", "VBAR", "CIRCUMFLEX"),
         ("left", "PLUS", "MINUS"),
         ("left", "STAR", "SLASH", "PERCENT"),
-        ("left", "POWER"),
         ("right", "UNARY"),
+        ("right", "POWER"),
     )
     
     def __init__(self, text):

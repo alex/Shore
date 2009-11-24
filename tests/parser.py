@@ -42,6 +42,9 @@ class ParserTest(unittest.TestCase):
         self.assert_parses("""str c = None""", [
             ("DeclarationNode", ("NameNode", "str"), "c", ("NoneNode",))
         ])
+        self.assert_parses("""a ** b ** c""", [
+            ("BinOpNode", ("NameNode", "a"), ("BinOpNode", "b", "c", "**"), "**"),
+        ])
         self.assert_parses("""dict<str, int>""", [
             ("TemplateNode", ("NameNode", "dict"), [("NameNode", "str"), ("NameNode", "int")]),
         ])
