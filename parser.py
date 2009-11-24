@@ -14,6 +14,7 @@ class ParseError(Exception):
 class Parser(object):
     precedence = (
         ("nonassoc", "AND", "OR"),
+        ("right", "NOT"),
         ("nonassoc", "COMPARISON"),
         ("left", "AMPER", "VBAR", "CIRCUMFLEX"),
         ("left", "PLUS", "MINUS"),
@@ -137,7 +138,7 @@ class Parser(object):
     
     def p_expression_unop(self, t):
         """
-        expression : NOT expression %prec UNARY
+        expression : NOT expression
                    | TILDE expression %prec UNARY
                    | PLUS expression %prec UNARY
                    | MINUS expression %prec UNARY
