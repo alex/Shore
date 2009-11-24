@@ -117,6 +117,16 @@ class LexerTest(unittest.TestCase):
             ("NAME", "b"),
             ("NEWLINE", "\n"),
         ])
+        
+        self.assert_lexes("""dict<str, int>""", [
+            ("NAME", "dict"),
+            ("LESS", "<"),
+            ("NAME", "str"),
+            ("COMMA", ","),
+            ("NAME", "int"),
+            ("GREATER", ">"),
+            ("NEWLINE", "\n"),
+        ])
     
     def test_indent(self):
         self.assert_lexes("""for i in range(5):\n    print(i)\n    print(i)\nprint(3)""", [

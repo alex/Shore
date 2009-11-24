@@ -111,6 +111,9 @@ class Lexer(object):
             yield Symbol("NUMBER", "".join(self.current_val))
         elif self.state == "name":
             yield self.emit_name()
+        elif self.state == "long_symbol":
+            ch = self.current_val.pop()
+            yield Symbol(self.symbols[ch].upper(), ch)
             
     def emit_name(self):
         name = "".join(self.current_val)
