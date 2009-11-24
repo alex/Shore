@@ -13,6 +13,7 @@ class ParseError(Exception):
 
 class Parser(object):
     precedence = (
+        ("nonassoc", "AND", "OR"),
         ("nonassoc", "COMPARISON"),
         ("left", "AMPER", "VBAR", "CIRCUMFLEX"),
         ("left", "PLUS", "MINUS"),
