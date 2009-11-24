@@ -40,7 +40,11 @@ class Lexer(object):
         "^": "CIRCUMFLEX",
         "@": "AT",
         "!": "EXCL",
+        "**": "STARSTAR",
     }
+    
+    # These are the start characters for various 2 char symbols, such as STAR STAR.
+    long_symbols = frozenset("*")
     
     tokens = list(set(["NUMBER", "NAME", "INDENT", "DEDENT", "STRING", "NEWLINE"]) |
         set(symbols.values()) | set(map(lambda s: s.upper(), keywords)))
@@ -155,6 +159,16 @@ class Lexer(object):
                 return [sym, self.generic(ch)]
             return self.generic(ch)
     
+    def long_symbol(self, ch):
+        old_ch = self.current_val.pop()
+        val = old_ch + ch
+        if val in self.symbols:
+            sym = Symbol(self.symbols[val].upper(), val)
+            self.state = None
+            return sym
+        self.state = None
+        return [Symbol(self.symbols[old_ch].upper(), old_ch), self.generic(ch)]
+    
     def generic(self, ch):
         if ch == '"':
             self.state = "string"
@@ -170,6 +184,10 @@ class Lexer(object):
             self.state = "newline"
             return Symbol("NEWLINE", "\n")
         else:
+            if ch in self.long_symbols:
+                self.state = "long_symbol"
+                self.current_val.append(ch)
+                return
             if ch in self.symbols:
                 return Symbol(self.symbols[ch].upper(), ch)
             raise ValueError("%s couldn't be parsed" % ch)

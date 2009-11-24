@@ -103,6 +103,7 @@ class Parser(object):
                    | expression PERCENT expression
                    | expression AND expression
                    | expression OR expression
+                   | expression STARSTAR expression %prec POWER
         """
         t[0] = ast.BinOpNode(t[1], t[3], t[2])
     
@@ -136,12 +137,6 @@ class Parser(object):
             t[0] = ast.ContainsNode(t[1], t[3])
         else:
             t[0] = ast.UnaryOpNode(ast.ContainsNode(t[1], t[4]), "not")
-    
-    def p_expression_power(self, t):
-        """
-        expression : expression STAR STAR expression %prec POWER
-        """
-        t[0] = ast.BinOpNode(t[1], t[4], "**")
     
     def p_expression_unop(self, t):
         """
