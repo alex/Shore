@@ -51,7 +51,7 @@ class Parser(object):
     
     def p_statement(self, t):
         """
-        statement : simple_statement
+        statement : simple_statement NEWLINE
                   | compound_statement
         """
         t[0] = t[1]

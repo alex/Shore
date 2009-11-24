@@ -19,7 +19,8 @@ class LexerTest(unittest.TestCase):
         self.assert_lexes("""a = 3""", [
             ("NAME", "a"),
             ("EQUAL", "="),
-            ("NUMBER", "3")
+            ("NUMBER", "3"),
+            ("NEWLINE", "\n"),
         ])
         
         self.assert_lexes("""a = 3\nb = a""", [
@@ -30,6 +31,7 @@ class LexerTest(unittest.TestCase):
             ("NAME", "b"),
             ("EQUAL", "="),
             ("NAME", "a"),
+            ("NEWLINE", "\n"),
         ])
         
         self.assert_lexes("""a = 3\nb = a\nc="a+3"\nd = c""", [
@@ -48,12 +50,14 @@ class LexerTest(unittest.TestCase):
             ("NAME", "d"),
             ("EQUAL", "="),
             ("NAME", "c"),
+            ("NEWLINE", "\n"),
         ])
         
         self.assert_lexes("""abc2 = 342""", [
             ("NAME", "abc2"),
             ("EQUAL", "="),
             ("NUMBER", "342"),
+            ("NEWLINE", "\n"),
         ])
         
         self.assert_lexes("""a = "\\\""\nb = a""", [
@@ -63,13 +67,15 @@ class LexerTest(unittest.TestCase):
             ("NEWLINE", "\n"),
             ("NAME", "b"),
             ("EQUAL", "="),
-            ("NAME", "a")
+            ("NAME", "a"),
+            ("NEWLINE", "\n"),
         ])
         
         self.assert_lexes("""True or False""", [
             ("TRUE", "True"),
             ("OR", "or"),
             ("FALSE", "False"),
+            ("NEWLINE", "\n"),
         ])
     
     def test_math(self):
@@ -87,6 +93,7 @@ class LexerTest(unittest.TestCase):
             ("NAME", "a"),
             ("SLASH", "/"),
             ("NUMBER", "9"),
+            ("NEWLINE", "\n"),
         ])
         
         self.assert_lexes("""int a = 5\nint b = 5 * a""", [
@@ -101,6 +108,7 @@ class LexerTest(unittest.TestCase):
             ("NUMBER", "5"),
             ("STAR", "*"),
             ("NAME", "a"),
+            ("NEWLINE", "\n"),
         ])
     
     def test_indent(self):
@@ -130,6 +138,7 @@ class LexerTest(unittest.TestCase):
             ("LPAR", "("),
             ("NUMBER", "3"),
             ("RPAR", ")"),
+            ("NEWLINE", "\n"),
         ])
 
 

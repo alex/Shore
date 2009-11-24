@@ -76,6 +76,7 @@ class Lexer(object):
                     yield next
             else:
                 yield token
+        yield Symbol("NEWLINE", "\n")
                     
     
     def parse_main(self):
