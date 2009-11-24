@@ -41,7 +41,7 @@ T def<T, U> min(iterable<T> items, callable<T, U> key=lambda o: o):
     T min_item = None
     for item in items:
         U val = key(item)
-        if ,om_val is None or val > min_val:
+        if min_val is None or val > min_val:
             min_val = val
             min_item = item
     return min_item
