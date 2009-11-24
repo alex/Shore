@@ -128,8 +128,8 @@ class Parser(object):
     
     def p_expression_in(self, t):
         """
-        expression : expression IN expression
-                   | expression NOT IN expression
+        expression : expression IN expression %prec COMPARISON
+                   | expression NOT IN expression %prec COMPARISON
         """
         if len(t) == 4:
             t[0] = ast.ContainsNode(t[1], t[3])
