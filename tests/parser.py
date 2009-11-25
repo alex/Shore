@@ -57,6 +57,9 @@ class ParserTest(unittest.TestCase):
         self.assert_parses("""a = 2""", [
             ("AssignmentNode", "a", ("IntegerNode", "2")),
         ])
+        self.assert_parses("""a[3] = 2""", [
+            ("ItemAssignmentNode", ("NameNode", "a"), ("IntegerNode", "3"), ("IntegerNode", "2")),
+        ])
 
 if __name__ == "__main__":
     unittest.main()

@@ -75,3 +75,6 @@ class TemplateNode(BaseNode):
 
 class AssignmentNode(BaseNode):
     attrs = ["name", "value"]
+
+class ItemAssignmentNode(BaseNode):
+    attrs = ["rhs", "index", "value"]

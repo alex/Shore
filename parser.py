@@ -231,6 +231,7 @@ class Parser(object):
         """
         assignment_statement : expression LSQB expression RSQB EQUAL expression
         """
+        t[0] = ast.ItemAssignmentNode(t[1], t[3], t[6])
         
     def p_flow_statement(self, t):
         """
