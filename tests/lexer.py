@@ -77,6 +77,13 @@ class LexerTest(unittest.TestCase):
             ("FALSE", "False"),
             ("NEWLINE", "\n"),
         ])
+        
+        self.assert_lexes("""a is not None""", [
+            ("NAME", "a"),
+            ("ISNOT", "is not"),
+            ("NONE", "None"),
+            ("NEWLINE", "\n"),
+        ])
     
     def test_math(self):
         self.assert_lexes("""a = 3\nb = a*2 - a/9""", [

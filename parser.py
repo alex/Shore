@@ -124,9 +124,9 @@ class Parser(object):
     
     def p_expression_is_not(self, t):
         """
-        expression : expression IS NOT expression %prec COMPARISON
+        expression : expression ISNOT expression %prec COMPARISON
         """
-        t[0] = ast.UnaryOpNode(ast.CompNode(t[1], t[4], "is"), "not")
+        t[0] = ast.UnaryOpNode(ast.CompNode(t[1], t[3], "is"), "not")
     
     def p_expression_in(self, t):
         """

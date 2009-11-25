@@ -12,7 +12,7 @@ class Lexer(object):
         "and", "break", "class", "continue", "def", "elif", "else",
         "except", "finally", "for", "from", "if", "import", "in", "is", "not",
         "or", "pass", "raise", "return", "try", "while", "yield", "True",
-        "False", "None", # "as", "with",
+        "False", "None", "isnot", # "as", "with",
     ])
     
     symbols = {
@@ -80,6 +80,13 @@ class Lexer(object):
                 else:
                     for i in xrange(levels[-1] / 4):
                         yield Symbol("DEDENT", "")
+                    yield next
+            elif token.name == "IS":
+                next = tokens.next()
+                if next.name == "NOT":
+                    yield Symbol("ISNOT", "is not")
+                else:
+                    yield token
                     yield next
             else:
                 yield token
