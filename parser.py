@@ -226,6 +226,7 @@ class Parser(object):
         """
         assignment_statement : expression DOT NAME EQUAL expression
         """
+        t[0] = ast.AttrAssignmentNode(t[1], t[3], t[5])
     
     def p_assignment_statement_item(self, t):
         """

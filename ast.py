@@ -78,3 +78,6 @@ class AssignmentNode(BaseNode):
 
 class ItemAssignmentNode(BaseNode):
     attrs = ["rhs", "index", "value"]
+
+class AttrAssignmentNode(BaseNode):
+    attrs = ["rhs", "attr", "value"]
