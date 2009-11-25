@@ -54,6 +54,9 @@ class ParserTest(unittest.TestCase):
         self.assert_parses("""list<str> c = None""", [
             ("DeclarationNode", ("TemplateNode", ("NameNode", "list"), [("NameNode", "str")]), "c", ("NoneNode",)),
         ])
+        self.assert_parses("""a = 2""", [
+            ("AssignmentNode", "a", ("IntegerNode", "2")),
+        ])
 
 if __name__ == "__main__":
     unittest.main()

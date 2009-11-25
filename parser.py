@@ -161,9 +161,9 @@ class Parser(object):
     
     def p_expression_name(self, t):
         """
-        expression : NAME
+        expression : template
         """
-        t[0] = ast.NameNode(t[1])
+        t[0] = t[1]
 
     def p_expression_function_call(self, t):
         """
@@ -192,33 +192,46 @@ class Parser(object):
     
     def p_declaration(self, t):
         """
-        declaration : expression NAME EQUAL expression
+        declaration : template NAME EQUAL expression
         """
         t[0] = ast.DeclarationNode(t[1], t[2], t[4])
     
-    def p_expression_type(self, t):
+    def p_template(self, t):
         """
-        expression : NAME LESS expressions GREATER
+        template : NAME
+                 | NAME LESS templates GREATER
         """
-        t[0] = ast.TemplateNode(t[1], t[3])
+        if len(t) == 2:
+            t[0] = ast.NameNode(t[1])
+        else:
+            t[0] = ast.TemplateNode(ast.NameNode(t[1]), t[3])
     
-    def p_expressions(self, t):
+    def p_templates(self, t):
         """
-        expressions : expression
-                    | expressions COMMA expression
+        templates : template
+                  | templates COMMA template
         """
         if len(t) == 2:
             t[0] = [t[1]]
         else:
             t[0] = t[1] + [t[3]]
     
-    def p_assigment_statement(self, t):
+    def p_assigment_statement_name(self, t):
         """
         assignment_statement : NAME EQUAL expression
-                             | expression DOT NAME EQUAL expression
-                             | expression LSQB expression RSQB EQUAL expression
+        """
+        t[0] = ast.AssignmentNode(t[1], t[3])
+    
+    def p_assignment_statement_attr(self, t):
+        """
+        assignment_statement : expression DOT NAME EQUAL expression
         """
     
+    def p_assignment_statement_item(self, t):
+        """
+        assignment_statement : expression LSQB expression RSQB EQUAL expression
+        """
+        
     def p_flow_statement(self, t):
         """
         flow_statement : BREAK
@@ -313,7 +326,7 @@ class Parser(object):
     
     def p_function_definition(self, t):
         """
-        function_definition : expression DEF LESS expression GREATER NAME parameters COLON suite
+        function_definition : template DEF LESS expression GREATER NAME parameters COLON suite
                             | DEF NAME parameters COLON suite
         """
         # TODO: This is way too restrictive, it requires a return type to be
