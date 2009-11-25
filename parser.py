@@ -23,13 +23,15 @@ class Parser(object):
         ("right", "STARSTAR"),
     )
     
+    debug = False
+    
     def __init__(self, text):
         self.text = text
         self.tokens = Lexer.tokens
         self.parser = yacc.yacc(module=self, tabmodule="shore.parsetab")
     
     def parse(self):
-        return self.parser.parse(lexer=PLYCompatLexer(self.text))
+        return self.parser.parse(lexer=PLYCompatLexer(self.text), debug=self.debug)
     
     def p_error(self, t):
         raise ParseError(t)

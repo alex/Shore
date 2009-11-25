@@ -45,6 +45,9 @@ class ParserTest(unittest.TestCase):
         self.assert_parses("""a ** b ** c""", [
             ("BinOpNode", ("NameNode", "a"), ("BinOpNode", ("NameNode", "b"), ("NameNode", "c"), "**"), "**"),
         ])
+        self.assert_parses("""list<int>""", [
+            ("TemplateNode", ("NameNode", "list"), [("NameNode", "int")]),
+        ])
         self.assert_parses("""dict<str, int>""", [
             ("TemplateNode", ("NameNode", "dict"), [("NameNode", "str"), ("NameNode", "int")]),
         ])
