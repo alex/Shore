@@ -91,6 +91,13 @@ class ParserTest(unittest.TestCase):
         ])
         
         data = [
+            "a < 2",
+        ]
+        self.assert_parses(data, [
+            ("CondNode", ("NameNode", "a"), ("IntegerNode", "2"), "<"),
+        ])
+        
+        data = [
             "list<int>",
         ]
         self.assert_parses(data, [
