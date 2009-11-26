@@ -328,7 +328,7 @@ class Parser(object):
     def p_try_statement(self, t):
         """
         try_statement : TRY COLON suite EXCEPT COLON suite
-                      | TRY COLON suite EXCEPT FINALLY COLON suite
+                      | TRY COLON suite EXCEPT COLON suite FINALLY COLON suite
         """
         # TODO: Finally without except.
     
