@@ -7,68 +7,148 @@ from shore.parser import Parser
 
 class ParserTest(unittest.TestCase):
     def assert_parses(self, text, expected):
-        ast = Parser(text).parse()
+        ast = Parser("\n".join(text)).parse()
         self.assertEqual(expected, ast)
     
     def test_simple(self):
-        self.assert_parses("""3 + 4""", [
+        data = [
+            "3 + 4",
+        ]
+        self.assert_parses(data, [
             ("BinOpNode", ("IntegerNode", "3"), ("IntegerNode", "4"), "+"),
         ])
-        self.assert_parses("""True or False""", [
+        
+        data = [
+            "True or False",
+        ]
+        self.assert_parses(data, [
             ("BinOpNode", ("BooleanNode", True), ("BooleanNode", False), "or"),
         ])
-        self.assert_parses("""int a = 3\nfloat c = a + 4.5""", [
+        
+        data = [
+            "int a = 3",
+            "float c = a + 4.5",
+        ]
+        self.assert_parses(data, [
             ("DeclarationNode", ("NameNode", "int"), "a", ("IntegerNode", "3")),
             ("DeclarationNode", ("NameNode", "float"), "c", ("BinOpNode", ("NameNode", "a"), ("FloatNode", "4.5"), "+")),
         ])
-        self.assert_parses("""bool b = "a" in seq""", [
+        
+        data = [
+            'bool b = "a" in seq',
+        ]
+        self.assert_parses(data, [
             ("DeclarationNode", ("NameNode", "bool"), "b", ("ContainsNode", ("StringNode", "a"), ("NameNode", "seq")))
         ])
-        self.assert_parses("""b not in seq""", [
+        
+        data = [
+            "b not in seq",
+        ]
+        self.assert_parses(data, [
             ("UnaryOpNode", ("ContainsNode", ("NameNode", "b"), ("NameNode", "seq")), "not")
         ])
-        self.assert_parses("""val is None""", [
+        
+        data = [
+            "val is None",
+        ]
+        self.assert_parses(data, [
             ("CompNode", ("NameNode", "val"), ("NoneNode",), "is"),
         ])
-        self.assert_parses("""val is not None""", [
+        
+        data = [
+            "val is not None",
+        ]
+        self.assert_parses(data, [
             ("UnaryOpNode", ("CompNode", ("NameNode", "val"), ("NoneNode",), "is"), "not"),
         ])
-        self.assert_parses("""val[2]""", [
+        
+        data = [
+            "val[2]",
+        ]
+        self.assert_parses(data, [
             ("SubscriptNode", ("NameNode", "val"), ("IntegerNode", "2")),
         ])
-        self.assert_parses(""".4 / 4.""", [
+        
+        data = [
+            ".4 / 4.",
+        ]
+        self.assert_parses(data, [
             ("BinOpNode", ("FloatNode", "0.4"), ("FloatNode", "4.0"), "/"),
         ])
-        self.assert_parses("""str c = None""", [
+        
+        data = [
+            "str c = None",
+        ]
+        self.assert_parses(data, [
             ("DeclarationNode", ("NameNode", "str"), "c", ("NoneNode",))
         ])
-        self.assert_parses("""a ** b ** c""", [
+        
+        data = [
+            "a ** b ** c",
+        ]
+        self.assert_parses(data, [
             ("BinOpNode", ("NameNode", "a"), ("BinOpNode", ("NameNode", "b"), ("NameNode", "c"), "**"), "**"),
         ])
-        self.assert_parses("""list<int>""", [
+        
+        data = [
+            "list<int>",
+        ]
+        self.assert_parses(data, [
             ("TemplateNode", ("NameNode", "list"), [("NameNode", "int")]),
         ])
-        self.assert_parses("""dict<str, int>""", [
+        
+        data = [
+            "dict<str, int>",
+        ]
+        self.assert_parses(data, [
             ("TemplateNode", ("NameNode", "dict"), [("NameNode", "str"), ("NameNode", "int")]),
         ])
-        self.assert_parses("""list<str> c = None""", [
+        
+        data = [
+            "list<str> c = None",
+        ]
+        self.assert_parses(data, [
             ("DeclarationNode", ("TemplateNode", ("NameNode", "list"), [("NameNode", "str")]), "c", ("NoneNode",)),
         ])
-        self.assert_parses("""a = 2""", [
+        
+        data = [
+            "a = 2",
+        ]
+        self.assert_parses(data, [
             ("AssignmentNode", "a", ("IntegerNode", "2")),
         ])
-        self.assert_parses("""a[3] = 2""", [
+        
+        data = [
+            "a[3] = 2",
+        ]
+        self.assert_parses(data, [
             ("ItemAssignmentNode", ("NameNode", "a"), ("IntegerNode", "3"), ("IntegerNode", "2")),
         ])
-        self.assert_parses("""a.b = 2""", [
+        
+        data = [
+            "a.b = 2",
+        ]
+        self.assert_parses(data, [
             ("AttrAssignmentNode", ("NameNode", "a"), "b", ("IntegerNode", "2")),
         ])
-        self.assert_parses("""if a:\n    a[3] = 2""", [
+        
+        data = [
+            "if a:",
+            "    a[3] = 2",
+        ]
+        self.assert_parses(data, [
             ("IfNode", [(("NameNode", "a"), [
                 ("ItemAssignmentNode", ("NameNode", "a"), ("IntegerNode", "3"), ("IntegerNode", "2")),
             ])], None)
         ])
-        self.assert_parses("""if not a:\n    a = l\nelse:\n    a[0] = 2""", [
+        
+        data = [
+            "if not a:",
+            "    a = l",
+            "else:",
+            "    a[0] = 2",
+        ]
+        self.assert_parses(data, [
             ("IfNode", [(("UnaryOpNode", ("NameNode", "a"), "not"), [
                 ("AssignmentNode", "a", ("NameNode", "l")),
             ])], [
