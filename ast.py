@@ -74,10 +74,10 @@ class AssignmentNode(BaseNode):
     attrs = ["name", "value"]
 
 class ItemAssignmentNode(BaseNode):
-    attrs = ["rhs", "index", "value"]
+    attrs = ["lhs", "index", "value"]
 
 class AttrAssignmentNode(BaseNode):
-    attrs = ["rhs", "attr", "value"]
+    attrs = ["lhs", "attr", "value"]
 
 class IfNode(BaseNode):
     attrs = ["conditions", "else_body"]
