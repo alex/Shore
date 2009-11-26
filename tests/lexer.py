@@ -12,20 +12,27 @@ def pad(s, length=20):
 
 class LexerTest(unittest.TestCase):
     def assert_lexes(self, string, tokens):
-        result = list(Lexer(string).parse())
+        result = list(Lexer("\n".join(string)).parse())
         diffs = ["%s\t\t%s\t\t%s" % (pad(expected), pad(seen, 35), expected == seen) for expected, seen in izip_longest(tokens, result)]
         error_message = "\n".join([""] + diffs)
-        self.assertEqual(result, tokens, error_message)
+        self.assertEqual(result, tokens, "\n".join([""] + string+ ["", ""]) + error_message)
     
     def test_simple(self):
-        self.assert_lexes("""a = 3""", [
+        data = [
+            "a = 3",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "a"),
             ("EQUAL", "="),
             ("NUMBER", "3"),
             ("NEWLINE", "\n"),
         ])
         
-        self.assert_lexes("""a = 3\nb = a""", [
+        data = [
+            "a = 3",
+            "b = a",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "a"),
             ("EQUAL", "="),
             ("NUMBER", "3"),
@@ -36,7 +43,13 @@ class LexerTest(unittest.TestCase):
             ("NEWLINE", "\n"),
         ])
         
-        self.assert_lexes("""a = 3\nb = a\nc="a+3"\nd = c""", [
+        data = [
+            "a = 3",
+            "b = a",
+            'c = "a+3"',
+            "d = c",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "a"),
             ("EQUAL", "="),
             ("NUMBER", "3"),
@@ -55,14 +68,21 @@ class LexerTest(unittest.TestCase):
             ("NEWLINE", "\n"),
         ])
         
-        self.assert_lexes("""abc2 = 342""", [
+        data = [
+            "abc2 = 342",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "abc2"),
             ("EQUAL", "="),
             ("NUMBER", "342"),
             ("NEWLINE", "\n"),
         ])
         
-        self.assert_lexes("""a = "\\\""\nb = a""", [
+        data = [
+            'a = "\\\""',
+            "b = a",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "a"),
             ("EQUAL", "="),
             ("STRING", '"'),
@@ -73,14 +93,20 @@ class LexerTest(unittest.TestCase):
             ("NEWLINE", "\n"),
         ])
         
-        self.assert_lexes("""True or False""", [
+        data = [
+            "True or False",
+        ]
+        self.assert_lexes(data, [
             ("TRUE", "True"),
             ("OR", "or"),
             ("FALSE", "False"),
             ("NEWLINE", "\n"),
         ])
         
-        self.assert_lexes("""a is not None""", [
+        data = [
+            "a is not None",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "a"),
             ("ISNOT", "is not"),
             ("NONE", "None"),
@@ -88,7 +114,11 @@ class LexerTest(unittest.TestCase):
         ])
     
     def test_math(self):
-        self.assert_lexes("""a = 3\nb = a*2 - a/9""", [
+        data = [
+            "a = 3",
+            "b = a*2 - a/9",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "a"),
             ("EQUAL", "="),
             ("NUMBER", "3"),
@@ -105,7 +135,11 @@ class LexerTest(unittest.TestCase):
             ("NEWLINE", "\n"),
         ])
         
-        self.assert_lexes("""int a = 5\nint b = 5 * a""", [
+        data = [
+            "int a = 5",
+            "int b = 5 * a",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "int"),
             ("NAME", "a"),
             ("EQUAL", "="),
@@ -120,14 +154,20 @@ class LexerTest(unittest.TestCase):
             ("NEWLINE", "\n"),
         ])
         
-        self.assert_lexes("""a ** b""", [
+        data = [
+            "a ** b",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "a"),
             ("STARSTAR", "**"),
             ("NAME", "b"),
             ("NEWLINE", "\n"),
         ])
         
-        self.assert_lexes("""dict<str, int>""", [
+        data = [
+            "dict<str, int>",
+        ]
+        self.assert_lexes(data, [
             ("NAME", "dict"),
             ("LESS", "<"),
             ("NAME", "str"),
@@ -138,7 +178,11 @@ class LexerTest(unittest.TestCase):
         ])
     
     def test_indent(self):
-        self.assert_lexes("""for i in range(5):\n    print(i)""", [
+        data = [
+            "for i in range(5):",
+            "    print(i)",
+        ]
+        self.assert_lexes(data, [
             ("FOR", "for"),
             ("NAME", "i"),
             ("IN", "in"),
@@ -157,7 +201,13 @@ class LexerTest(unittest.TestCase):
             ("DEDENT", ""),
         ])
         
-        self.assert_lexes("""if not a:\n    a = l\nelse:\n    a[0] = 2""", [
+        data = [
+            "if not a:",
+            "    a = l",
+            "else:",
+            "    a[0] = 2",
+        ]
+        self.assert_lexes(data, [
             ("IF", "if"),
             ("NOT", "not"),
             ("NAME", "a"),
@@ -183,7 +233,13 @@ class LexerTest(unittest.TestCase):
             ("DEDENT", ""),
         ])
         
-        self.assert_lexes("""for i in range(5):\n    print(i)\n    print(i)\nprint(3)""", [
+        data = [
+            "for i in range(5):",
+            "    print(i)",
+            "    print(i)",
+            "print(3)",
+        ]
+        self.assert_lexes(data, [
             ("FOR", "for"),
             ("NAME", "i"),
             ("IN", "in"),
