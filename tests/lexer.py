@@ -157,6 +157,32 @@ class LexerTest(unittest.TestCase):
             ("DEDENT", ""),
         ])
         
+        self.assert_lexes("""if not a:\n    a = l\nelse:\n    a[0] = 2""", [
+            ("IF", "if"),
+            ("NOT", "not"),
+            ("NAME", "a"),
+            ("COLON", ":"),
+            ("NEWLINE", "\n"),
+            ("INDENT", ""),
+            ("NAME", "a"),
+            ("EQUAL", "="),
+            ("NAME", "l"),
+            ("NEWLINE", "\n"),
+            ("DEDENT", ""),
+            ("ELSE", "else"),
+            ("COLON", ":"),
+            ("NEWLINE", "\n"),
+            ("INDENT", ""),
+            ("NAME", "a"),
+            ("LSQB", "["),
+            ("NUMBER", "0"),
+            ("RSQB", "]"),
+            ("EQUAL", "="),
+            ("NUMBER", "2"),
+            ("NEWLINE", "\n"),
+            ("DEDENT", ""),
+        ])
+        
         self.assert_lexes("""for i in range(5):\n    print(i)\n    print(i)\nprint(3)""", [
             ("FOR", "for"),
             ("NAME", "i"),
