@@ -283,20 +283,47 @@ class Parser(object):
                            | class_definition
                            | decorated
         """
+        t[0] = t[1]
     
     def p_if_statement(self, t):
         """
         if_statement : IF expression COLON suite
-                     | IF expression COLON suite ELSE COLON suite
-                     | IF expression COLON suite elifs
-                     | IF expression COLON suite elifs ELSE COLON suite
         """
+        t[0] = ast.IfNode([(t[2], t[4])], None)
+    
+    def p_if_statement_else(self, t):
+        """
+        if_statement : IF expression COLON suite ELSE COLON suite
+        """
+        t[0] = ast.IfNode([(t[2], t[4])], t[7])
+    
+    def p_if_statement_elifs(self, t):
+        """
+        if_statement : IF expression COLON suite elifs
+        """
+        t[0] = ast.IfNode(
+            [(t[2], t[4])] + t[5],
+            None
+        )
+    
+    def p_if_statement_elifs_else(self, t):
+        """
+        if_statement : IF expression COLON suite elifs ELSE COLON suite
+        """
+        t[0] = ast.IfNode(
+            [(t[2], t[4])] + t[5],
+            t[8]
+        )
     
     def p_elifs(self, t):
         """
         elifs : ELIF expression COLON suite
               | elifs ELIF expression COLON suite
         """
+        if len(t) == 5:
+            t[0] = [(t[2], t[4])]
+        else:
+            t[0] = t[1] + [(t[3], t[5])]
     
     def p_try_statement(self, t):
         """
@@ -319,12 +346,17 @@ class Parser(object):
         """
         suite : NEWLINE INDENT statements DEDENT
         """
+        t[0] = ast.NodeList(t[3])
     
     def p_statements(self, t):
         """
         statements : statement
                    | statements statement
         """
+        if len(t) == 2:
+            t[0] = [t[1]]
+        else:
+            t[0] = t[1] + [t[2]]
     
     def p_function_definition(self, t):
         """

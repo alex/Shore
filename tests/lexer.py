@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 
 import unittest
+from itertools import izip_longest
 
 from shore.lexer import Lexer
 
 
-def pad(s, length=15):
+def pad(s, length=20):
+    s = str(s)
     return s + " " * (max(0, length - len(s)))
 
 class LexerTest(unittest.TestCase):
     def assert_lexes(self, string, tokens):
         result = list(Lexer(string).parse())
-        diffs = ["%s\t\t%s\t\t\t%s" % (pad(str(expected)), seen, expected == seen) for expected, seen in zip(tokens, result)]
+        diffs = ["%s\t\t%s\t\t%s" % (pad(expected), pad(seen, 35), expected == seen) for expected, seen in izip_longest(tokens, result)]
         error_message = "\n".join([""] + diffs)
         self.assertEqual(result, tokens, error_message)
     
@@ -136,6 +138,25 @@ class LexerTest(unittest.TestCase):
         ])
     
     def test_indent(self):
+        self.assert_lexes("""for i in range(5):\n    print(i)""", [
+            ("FOR", "for"),
+            ("NAME", "i"),
+            ("IN", "in"),
+            ("NAME", "range"),
+            ("LPAR", "("),
+            ("NUMBER", "5"),
+            ("RPAR", ")"),
+            ("COLON", ":"),
+            ("NEWLINE", "\n"),
+            ("INDENT", ""),
+            ("NAME", "print"),
+            ("LPAR", "("),
+            ("NAME", "i"),
+            ("RPAR", ")"),
+            ("NEWLINE", "\n"),
+            ("DEDENT", ""),
+        ])
+        
         self.assert_lexes("""for i in range(5):\n    print(i)\n    print(i)\nprint(3)""", [
             ("FOR", "for"),
             ("NAME", "i"),

@@ -80,6 +80,7 @@ class Lexer(object):
                 else:
                     for i in xrange(levels[-1] / 4):
                         yield Symbol("DEDENT", "")
+                    levels.append(0)
                     yield next
             elif token.name == "IS":
                 next = tokens.next()
@@ -91,6 +92,8 @@ class Lexer(object):
             else:
                 yield token
         yield Symbol("NEWLINE", "\n")
+        for i in xrange(levels[-1] / 4):
+            yield Symbol("DEDENT", "")
                     
     
     def parse_main(self):
