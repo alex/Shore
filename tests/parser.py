@@ -198,6 +198,16 @@ class ParserTest(unittest.TestCase):
                 ("AssignmentNode", "a", ("IntegerNode", "3")),
             ])
         ])
+        
+        data = [
+            "while a < 10:",
+            "    a = a + 1",
+        ]
+        self.assert_parses(data, [
+            ("WhileNode", ("CompNode", ("NameNode", "a"), ("IntegerNode", "10"), "<"), [
+                ("AssignmentNode", "a", ("BinOpNode", ("NameNode", "a"), ("IntegerNode", "1", "+"))),
+            ])
+        ])
 
 
 if __name__ == "__main__":

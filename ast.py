@@ -84,3 +84,6 @@ class AttrAssignmentNode(BaseNode):
 
 class IfNode(BaseNode):
     attrs = ["conditions", "else_body"]
+
+class WhileNode(BaseNode):
+    attrs = ["condition", "body"]

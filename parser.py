@@ -23,7 +23,7 @@ class Parser(object):
         ("right", "STARSTAR"),
     )
     
-    debug = False
+    debug = True
     
     def __init__(self, text):
         self.text = text
@@ -336,6 +336,7 @@ class Parser(object):
         """
         while_statement : WHILE expression COLON suite
         """
+        t[0] = ast.WhileNode(t[2], t[4])
     
     def p_for_statement(self, t):
         """
