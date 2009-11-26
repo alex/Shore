@@ -155,6 +155,28 @@ class ParserTest(unittest.TestCase):
                 ("ItemAssignmentNode", ("NameNode", "a"), ("IntegerNode", "0"), ("IntegerNode", "2"))
             ]),
         ])
+        
+        data = [
+            "if not a:",
+            "    a = l",
+            "elif a == 2:",
+            "    a = 3",
+            "elif a == 3:",
+            "    a = 4",
+        ]
+        self.assert_parses(data, [
+            ("IfNode", [
+                (("UnaryOpNode", ("NameNode", "a"), "not"), [
+                    ("AssignmentNode", "a", ("NameNode", "l")),
+                ]),
+                (("CompNode", ("NameNode", "a"), ("IntegerNode", "2"), "=="), [
+                    ("AssignmentNode", "a", ("IntegerNode", "3")),
+                ]),
+                (("CompNode", ("NameNode", "a"), ("IntegerNode", "3"), "=="), [
+                    ("AssignmentNode", "a", ("IntegerNode", "4")),
+                ]),
+            ], None)
+        ])
 
 if __name__ == "__main__":
     unittest.main()
