@@ -1,0 +1,11 @@
+ * GC works by maintaining a set of all allocated objs, when its triggered it
+   runs through a set of root objects (frames) and calls a get_sub_objects()
+   method recursively on each obj, building a set of reachable objects.  Then 
+   (all - reachable) are freed.
+ * GC gets run after all calls and at loop headers.  Find out how real GCs
+   (non refcounting) decide when to run.
+ * In order to have a set of root objs for the interpretter there is a VMState
+   object that maintains a list of frame objects.  First action in all Shore
+   functions is to allocate a frame object, we don't use actual local
+   variables, instead we use frame->name, this way we can see which local vars
+   have references.
