@@ -6,15 +6,18 @@ class BaseNode(object):
             setattr(self, attr, value)
     
     def __repr__(self):
+        if not self.attrs:
+            return "(%r)" % type(self).__name__
         return "(%r, %s)" % (
             type(self).__name__, ", ".join(repr(getattr(self, attr)) for attr in self.attrs)
         )
     
     def __eq__(self, other):
         if isinstance(other, type(self)):
-            return all(getattr(self, attr) == getattr(other, attr) for attr in self.attrs)
-        return (other[0] == type(self).__name__ and
-            all(getattr(self, attr) == other[i+1] for i, attr in enumerate(self.attrs)))
+            return (not self.attrs or
+                all(getattr(self, attr) == getattr(other, attr) for attr in self.attrs))
+        return (other[0] == type(self).__name__ and (not self.attrs or
+            all(getattr(self, attr) == other[i+1] for i, attr in enumerate(self.attrs))))
 
 class NodeList(object):
     def __init__(self, nodes):
@@ -28,14 +31,8 @@ class NodeList(object):
             return self.nodes == other.nodes
         return self.nodes == other
 
-class NoneNode(object):
-    def __repr__(self):
-        return "(%r)" % type(self).__name__
-    
-    def __eq__(self, other):
-        if isinstance(other, NoneNode):
-            return True
-        return other[0] == type(self).__name__
+class NoneNode(BaseNode):
+    attrs = []
 
 class BooleanNode(BaseNode):
     attrs = ["value"]
