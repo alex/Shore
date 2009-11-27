@@ -26,6 +26,13 @@ class ParserTest(unittest.TestCase):
         ])
         
         data = [
+            "True or False and True",
+        ]
+        self.assert_parses(data, [
+            ("BinOpNode", ("BinOpNode", ("BooleanNode", True), ("BooleanNode", False), "or"), ("BooleanNode", True), "and"),
+        ])
+        
+        data = [
             "int a = 3",
             "float c = a + 4.5",
         ]
