@@ -3,6 +3,62 @@ from collections import namedtuple
 
 Symbol = namedtuple("Symbol", ["name", "value"])
 
+
+def token_processor(func):
+    def parser(inner_func):
+        def inner(self):
+            tokens = inner_func(self)
+            return func(tokens)
+        return inner
+    return parser
+
+@token_processor
+def track_indents(tokens):
+    levels = [0]
+    def handle_whitespace(token):
+        if len(token.value) == levels[-1]:
+            return []
+        elif len(token.value) > levels[-1]:
+            indents = (len(token.value) - levels[-1]) / 4
+            levels.append(len(token.value))
+            return [Symbol("INDENT", "") for i in xrange(indents)]
+        elif len(token.value) < levels[-1]:
+            dedents = (levels[-1] - len(token.value)) / 4
+            levels.append(len(token.value))
+            return [Symbol("DEDENT", "") for i in xrange(dedents)]
+    for token in tokens:
+        if token.name == "NEWLINE":
+            yield token
+            next = tokens.next()
+            if next.name == "WHITESPACE":
+                result = handle_whitespace(next)
+                for token in result:
+                    yield token
+            else:
+                for i in xrange(levels[-1] / 4):
+                    yield Symbol("DEDENT", "")
+                levels.append(0)
+                yield next
+        else:
+            yield token
+    yield Symbol("NEWLINE", "\n")
+    for i in xrange(levels[-1] / 4):
+        yield Symbol("DEDENT", "")
+
+
+@token_processor
+def combine_is_not(tokens):
+    for token in tokens:
+        if token.name == "IS":
+            next = tokens.next()
+            if next.name == "NOT":
+                yield Symbol("ISNOT", "is not")
+            else:
+                yield token
+                yield next
+        else:
+            yield token
+
 class Lexer(object):
     numbers = "1234567890"
     name_start_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
@@ -53,50 +109,11 @@ class Lexer(object):
         set(symbols.values()) | set(map(lambda s: s.upper(), keywords)))
     
     def __init__(self, text):
-        self.text = text
+        self.text = text        
     
+    @combine_is_not
+    @track_indents
     def parse(self):
-        levels = [0]
-        tokens = self.parse_main()
-        def handle_whitespace(token):
-            if len(token.value) == levels[-1]:
-                return []
-            elif len(token.value) > levels[-1]:
-                indents = (len(token.value) - levels[-1]) / 4
-                levels.append(len(token.value))
-                return [Symbol("INDENT", "") for i in xrange(indents)]
-            elif len(token.value) < levels[-1]:
-                dedents = (levels[-1] - len(token.value)) / 4
-                levels.append(len(token.value))
-                return [Symbol("DEDENT", "") for i in xrange(dedents)]
-        for token in tokens:
-            if token.name == "NEWLINE":
-                yield token
-                next = tokens.next()
-                if next.name == "WHITESPACE":
-                    result = handle_whitespace(next)
-                    for token in result:
-                        yield token
-                else:
-                    for i in xrange(levels[-1] / 4):
-                        yield Symbol("DEDENT", "")
-                    levels.append(0)
-                    yield next
-            elif token.name == "IS":
-                next = tokens.next()
-                if next.name == "NOT":
-                    yield Symbol("ISNOT", "is not")
-                else:
-                    yield token
-                    yield next
-            else:
-                yield token
-        yield Symbol("NEWLINE", "\n")
-        for i in xrange(levels[-1] / 4):
-            yield Symbol("DEDENT", "")
-                    
-    
-    def parse_main(self):
         index = 0
         self.state = None
         self.current_val = []
