@@ -159,7 +159,7 @@ class Parser(object):
         """
         t[0] = ast.SubscriptNode(t[1], t[3])
     
-    def p_expression_name(self, t):
+    def p_expression_template(self, t):
         """
         expression : template
         """
