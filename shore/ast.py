@@ -1,3 +1,13 @@
+from shore.utils import CompileError
+
+
+def bind_to_module(obj, module):
+    if hasattr(obj, "bind_to_module"):
+        obj.bind_to_module(module)
+    elif isinstance(obj, (tuple, list)):
+        for obj in obj:
+            bind_to_module(obj, module)
+
 class BaseNode(object):
     attrs = []
     needs_bind_to_module = []
@@ -22,13 +32,8 @@ class BaseNode(object):
     
     def bind_to_module(self, module):
         for attr in self.needs_bind_to_module:
-            obj = getattr(self, attr)
-            if isinstance(obj, (list, tuple)):
-                pass
-            elif obj is None:
-                pass
-            else:
-                obj.bind_to_module(module)
+            bind_to_module(getattr(self, attr), module)
+
 
 class NodeList(object):
     def __init__(self, nodes):
@@ -130,6 +135,15 @@ class ForNode(BaseNode):
 class FunctionNode(BaseNode):
     attrs = ["name", "templates", "return_type", "arguments", "body"]
     needs_bind_to_module = ["templates", "return_type", "arguments", "body"]
+    
+    def verify(self, context=None):
+        if context is None:
+            context = {}
+        if self.return_type is not None and not hasattr(self.return_type, "value"):
+            raise CompileError("Return type for %s doesn't exist." % self.name)
+        for name, type, default in self.arguments:
+            if not hasattr(type, "value"):
+                raise CompileError("Argument %s for %s's type doesn't exist." % (name, self.name))
 
 class ReturnNode(BaseNode):
     attrs = ["value"]

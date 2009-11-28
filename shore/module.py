@@ -55,5 +55,5 @@ class Module(object):
         for obj in itertools.chain(self.functions.itervalues(), self.classes.itervalues()):
             obj.bind_to_module(self)
         
-#        for obj in (self.functions.itervalues() + self.classes.itervalues()):
-#            obj.verify(self)
+        for obj in itertools.chain(self.functions.itervalues(), self.classes.itervalues()):
+            obj.verify()

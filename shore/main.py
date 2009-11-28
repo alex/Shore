@@ -20,7 +20,6 @@ class Shore(object):
         m.add_builtins({
             "int": Integer(),
         }, {
-        
         })
         m.from_ast(self.parse())
         return m
