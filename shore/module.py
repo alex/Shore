@@ -1,3 +1,5 @@
+import itertools
+
 from shore import ast
 from shore.utils import CompileError
 
@@ -9,6 +11,12 @@ class Module(object):
         self.functions = {}
         self.classes = {}
         self.templates = {}
+
+    def add_builtins(self, classes, functions):
+        for name, class_ in classes.iteritems():
+            self.classes[name] = class_
+        for name, function in functions.iteritems():
+            self.functions[name] = function
     
     def check_name(self, name):
         if name in (set(self.variables) | set(self.functions) | set(self.classes)):
@@ -18,7 +26,7 @@ class Module(object):
         self.check_name(node.name)
         self.variables[node.name] = node
     
-    def add_functions(self, node):
+    def add_function(self, node):
         self.check_name(node.name)
         if node.templates:
             self.templates[node.name] = node
@@ -32,8 +40,8 @@ class Module(object):
         else:
             self.classes[node.name] = node
     
-    def from_ast(self, ast):
-        for node in ast.nodes:
+    def from_ast(self, nodelist):
+        for node in nodelist.nodes:
             if isinstance(node, ast.DeclarationNode):
                 self.add_variables(node)
             elif isinstance(node, ast.FunctionNode):
@@ -44,7 +52,7 @@ class Module(object):
                 raise CompileError("You have stuff in the global scope that "
                     "isn't a declaraion of some sort")
         
-        for obj in (self.functions.itervalues() + self.classes.itervalues()):
+        for obj in itertools.chain(self.functions.itervalues(), self.classes.itervalues()):
             obj.bind_to_module(self)
         
 #        for obj in (self.functions.itervalues() + self.classes.itervalues()):

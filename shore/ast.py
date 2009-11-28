@@ -22,7 +22,13 @@ class BaseNode(object):
     
     def bind_to_module(self, module):
         for attr in self.needs_bind_to_module:
-            getattr(self, attr).bind_to_module(module)
+            obj = getattr(self, attr)
+            if isinstance(obj, (list, tuple)):
+                pass
+            elif obj is None:
+                pass
+            else:
+                getattr(self, attr).bind_to_module(module)
 
 class NodeList(object):
     def __init__(self, nodes):

@@ -1,3 +1,4 @@
+from shore.builtins import Integer
 from shore.lexer import Lexer
 from shore.module import Module
 from shore.parser import Parser
@@ -16,5 +17,10 @@ class Shore(object):
     
     def to_module(self):
         m = Module("__main__")
+        m.add_builtins({
+            "int": Integer(),
+        }, {
+        
+        })
         m.from_ast(self.parse())
         return m
