@@ -25,13 +25,13 @@ class Parser(object):
     
     debug = False
     
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, tokens):
+        self.token_stream = tokens
         self.tokens = Lexer.tokens
         self.parser = yacc.yacc(module=self)
     
     def parse(self):
-        return self.parser.parse(lexer=PLYCompatLexer(self.text), debug=self.debug)
+        return self.parser.parse(lexer=self.token_stream, debug=self.debug)
     
     def p_error(self, t):
         raise ParseError(t)

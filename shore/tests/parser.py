@@ -2,12 +2,12 @@
 
 import unittest
 
-from shore.parser import Parser
+from shore.main import Shore
 
 
 class ParserTest(unittest.TestCase):
     def assert_parses(self, text, expected):
-        ast = Parser("\n".join(text)).parse()
+        ast = Shore("\n".join(text)).parse()
         self.assertEqual(expected, ast)
     
     def test_simple(self):

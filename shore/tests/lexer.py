@@ -3,7 +3,7 @@
 import unittest
 from itertools import izip_longest
 
-from shore.lexer import Lexer
+from shore.main import Shore
 
 
 def pad(s, length=20):
@@ -12,7 +12,7 @@ def pad(s, length=20):
 
 class LexerTest(unittest.TestCase):
     def assert_lexes(self, string, tokens):
-        result = list(Lexer("\n".join(string)).parse())
+        result = list(Shore("\n".join(string)).tokenize())
         diffs = ["%s\t\t%s\t\t%s" % (pad(expected), pad(seen, 35), expected == seen) for expected, seen in izip_longest(tokens, result)]
         error_message = "\n".join([""] + diffs)
         self.assertEqual(result, tokens, "\n".join([""] + string+ ["", ""]) + error_message)

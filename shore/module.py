@@ -8,6 +8,7 @@ class Module(object):
         self.variables = {}
         self.functions = {}
         self.classes = {}
+        self.templates = {}
     
     def check_name(self, name):
         if name in (set(self.variables) | set(self.functions) | set(self.classes)):
@@ -19,11 +20,17 @@ class Module(object):
     
     def add_functions(self, node):
         self.check_name(node.name)
-        self.functions[node.name] = Function(node)
+        if node.templates:
+            self.templates[node.name] = node
+        else:
+            self.functions[node.name] = node
     
     def add_class(self, node):
         self.check_name(node.name)
-        self.classes[node.name] = Class(node)
+        if node.templates:
+            self.templates[node.name] = node
+        else:
+            self.classes[node.name] = node
     
     def from_ast(self, ast):
         for node in ast.nodes:
@@ -40,18 +47,5 @@ class Module(object):
         for obj in (self.functions.itervalues() + self.classes.itervalues()):
             obj.bind_to_module(self)
         
-        for obj in (self.functions.itervalues() + self.classes.itervalues()):
-            obj.verify(self)
-
-
-class Function(object):
-    def __init__(self, ast):
-        self.name = name
-        self.ast = ast
-        self.return_type = None
-        self.arguments = None
-        self.templates = None
-    
-    def bind_to_module(self, module):
-        if self.ast.return_type is None:
-            self.return_type = NoneType()
+#        for obj in (self.functions.itervalues() + self.classes.itervalues()):
+#            obj.verify(self)

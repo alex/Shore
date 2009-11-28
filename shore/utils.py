@@ -2,9 +2,8 @@ from shore.lexer import Lexer
 
 
 class PLYCompatLexer(object):
-    def __init__(self, text):
-        self.text = text
-        self.token_stream = Lexer(text).parse()
+    def __init__(self, token_stream):
+        self.token_stream = token_stream
     
     def token(self):
         try:

@@ -113,7 +113,7 @@ class Lexer(object):
     
     @combine_is_not
     @track_indents
-    def parse(self):
+    def tokenize(self):
         index = 0
         self.state = None
         self.current_val = []
