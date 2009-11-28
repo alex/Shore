@@ -169,6 +169,13 @@ class Parser(object):
         """
         expression : expression LPAR arglist RPAR
         """
+        t[0] = ast.CallNode(t[1], t[3])
+    
+    def p_expression_attribute(self, t):
+        """
+        expression : expression DOT NAME
+        """
+        t[0] = ast.AttributeNode(t[1], t[3])
     
     def p_expression_int(self, t):
         """
@@ -460,12 +467,19 @@ class Parser(object):
         arglist : argument
                 | arglist COMMA argument
         """
-        # TODO: Trailing commas should be allowed
+        if len(t) == 2:
+            t[0] = [t[1]]
+        else:
+            t[0] = t[1] + [t[3]]
     
     def p_argument(self, t):
         """
         argument : expression 
                  | NAME EQUAL expression
         """
+        if len(t) == 2:
+            t[0] = (None, t[1])
+        else:
+            t[0] = (t[1], t[3])
     
     # TODO: Support atoms (tuple, list, dict, set)

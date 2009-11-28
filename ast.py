@@ -99,3 +99,9 @@ class ClassNode(BaseNode):
 
 class PassNode(BaseNode):
     attrs = []
+
+class CallNode(BaseNode):
+    attrs = ["function", "arguments"]
+
+class AttributeNode(BaseNode):
+    attrs = ["value", "attribute"]

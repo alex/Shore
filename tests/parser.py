@@ -300,6 +300,23 @@ class ParserTest(unittest.TestCase):
                 ("PassNode",)
             ])
         ])
+        
+        data = [
+            "print(3)",
+        ]
+        self.assert_parses(data, [
+            ("CallNode", ("NameNode", "print"), [(None, ("IntegerNode", "3"))])
+        ])
+        
+        data = [
+            "print(3, file=sys.stderr)",
+        ]
+        self.assert_parses(data, [
+            ("CallNode", ("NameNode", "print"), [
+                (None, ("IntegerNode", "3")),
+                ("file", ("AttributeNode", ("NameNode", "sys"), "stderr")),
+            ])
+        ])
 
 
 if __name__ == "__main__":
