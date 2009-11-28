@@ -22,3 +22,7 @@ class PLYCompatToken(object):
     
     def __repr__(self):
         return "<Token: %r %r>" % (self.type, self.value)
+
+
+class CompileError(ValueError):
+    pass
