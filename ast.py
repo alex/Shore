@@ -93,3 +93,9 @@ class FunctionNode(BaseNode):
 
 class ReturnNode(BaseNode):
     attrs = ["value"]
+
+class ClassNode(BaseNode):
+    attrs = ["name", "templates", "superclasses", "body"]
+
+class PassNode(BaseNode):
+    attrs = []

@@ -254,6 +254,7 @@ class Parser(object):
         """
         pass_statement : PASS
         """
+        t[0] = ast.PassNode()
     
     def p_continue_statement(self, t):
         """
@@ -397,9 +398,14 @@ class Parser(object):
     
     def p_class_definition(self, t):
         """
-        class_definition : CLASS LBRACE templates RBRACE NAME parameters COLON suite
-                         | CLASS NAME parameters COLON suite
+        class_definition : CLASS LBRACE templates RBRACE NAME LPAR templates RPAR COLON suite
+                         | CLASS NAME LPAR templates RPAR COLON suite
         """
+        if len(t) == 11:
+            t[0] = ast.ClassNode(t[5], t[3], t[7], t[10])
+        else:
+            t[0] = ast.ClassNode(t[2], [], t[4], t[7])
+        
     
     def p_decorated(self, t):
         """

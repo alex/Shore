@@ -280,6 +280,26 @@ class ParserTest(unittest.TestCase):
                 ("ItemAssignmentNode", ("NameNode", "items"), ("IntegerNode", "0"), ("StringNode", "lol")),
             ]),
         ])
+        
+        data = [
+            "class{T} dict(object):",
+            "    pass",
+        ]
+        self.assert_parses(data, [
+            ("ClassNode", "dict", [("NameNode", "T")], [("NameNode", "object")], [
+                ("PassNode",)
+            ])
+        ])
+        
+        data = [
+            "class Vector3(object):",
+            "    pass",
+        ]
+        self.assert_parses(data, [
+            ("ClassNode", "Vector3", [], [("NameNode", "object")], [
+                ("PassNode",)
+            ])
+        ])
 
 
 if __name__ == "__main__":
