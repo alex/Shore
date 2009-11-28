@@ -1,3 +1,5 @@
+from shore.builtins import Integer
+from shore.context import Context
 from shore.utils import CompileError
 
 
@@ -50,6 +52,10 @@ class NodeList(object):
     def bind_to_module(self, module):
         for node in self.nodes:
             node.bind_to_module(module)
+    
+    def verify(self, context):
+        for node in self.nodes:
+            node.verify(context)
 
 class NoneNode(BaseNode):
     attrs = []
@@ -66,6 +72,12 @@ class StringNode(BaseNode):
 class IntegerNode(BaseNode):
     attrs = ["value"]
     needs_bind_to_module = []
+    
+    def verify(self, context):
+        pass
+    
+    def type(self, context):
+        return Integer
 
 class FloatNode(BaseNode):
     attrs = ["value"]
@@ -78,6 +90,26 @@ class BinOpNode(BaseNode):
 class CompNode(BaseNode):
     attrs = ["left", "right", "op"]
     needs_bind_to_module = ["left", "right"]
+    
+    def verify(self, context):
+        method_names = {
+            "==": "__eq__",
+            "!=": "__ne__",
+            ">": "__gt__",
+            "<": "__lt__",
+            ">=": "__ge__",
+            "<=": "__le__",
+        }
+        self.left.verify(context)
+        self.right.verify(context)
+        
+        left_type, right_type = self.left.type(context), self.right.type(context)
+        method = method_names[self.op]
+        if method not in left_type.functions:
+            raise CompileError("Can't do %s on %s" % (self.op, self.left_type))
+        if left_type.functions[method].arguments[1] is not right_type:
+            raise CompileError("Can't do %s on types %s, %s" % (self.op,
+                left_type, right_type))
 
 class ContainsNode(BaseNode):
     attrs = ["obj", "seq"]
@@ -95,6 +127,13 @@ class NameNode(BaseNode):
             self.value = module.classes[self.name]
         elif self.name in module.functions:
             self.value = module.functions[self.name]
+    
+    def verify(self, context):
+        if not hasattr(self, "value") and self.name not in context:
+            raise CompileError("%s not declared" % self.name)
+    
+    def type(self, context):
+        return context[self.name]
 
 class DeclarationNode(BaseNode):
     attrs = ["type", "name", "value"]
@@ -123,6 +162,13 @@ class AttrAssignmentNode(BaseNode):
 class IfNode(BaseNode):
     attrs = ["conditions", "else_body"]
     needs_bind_to_module = ["conditions", "else_body"]
+    
+    def verify(self, context):
+        for condition, body in self.conditions:
+            condition.verify(context)
+            context.push()
+            body.verify(context)
+            context.pop()
 
 class WhileNode(BaseNode):
     attrs = ["condition", "body"]
@@ -138,16 +184,23 @@ class FunctionNode(BaseNode):
     
     def verify(self, context=None):
         if context is None:
-            context = {}
+            context = Context()
+        context.push()
         if self.return_type is not None and not hasattr(self.return_type, "value"):
             raise CompileError("Return type for %s doesn't exist." % self.name)
         for name, type, default in self.arguments:
             if not hasattr(type, "value"):
                 raise CompileError("Argument %s for %s's type doesn't exist." % (name, self.name))
+            context[name] = type.value
+        
+        self.body.verify(context)
 
 class ReturnNode(BaseNode):
     attrs = ["value"]
     needs_bind_to_module = ["value"]
+    
+    def verify(self, context):
+        self.value.verify(context)
 
 class ClassNode(BaseNode):
     attrs = ["name", "templates", "superclasses", "body"]
@@ -159,6 +212,10 @@ class PassNode(BaseNode):
 class CallNode(BaseNode):
     attrs = ["function", "arguments"]
     needs_bind_to_module = ["function", "arguments"]
+    
+    def verify(self, context):
+        #TODO: everything
+        pass
 
 class AttributeNode(BaseNode):
     attrs = ["value", "attribute"]

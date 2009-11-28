@@ -18,7 +18,7 @@ class Shore(object):
     def to_module(self):
         m = Module("__main__")
         m.add_builtins({
-            "int": Integer(),
+            "int": Integer,
         }, {
         })
         m.from_ast(self.parse())
