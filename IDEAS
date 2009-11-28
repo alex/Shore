@@ -9,3 +9,6 @@
    functions is to allocate a frame object, we don't use actual local
    variables, instead we use frame->name, this way we can see which local vars
    have references.
+ * Frame objects can be stack allocated by simply doing ... that, and then when
+   registering using &frame.  This is ok because the frame doesn't escape the
+   function it is in.
