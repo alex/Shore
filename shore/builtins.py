@@ -1,3 +1,8 @@
+"""
+Definitions for various builtins.
+"""
+
+
 RECURSIVE_TYPE_CONSTANT = "self"
 
 

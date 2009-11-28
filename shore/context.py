@@ -1,3 +1,7 @@
+"""
+A stack of dictionaries for checking types in functions.
+"""
+
 class Context(object):
     def __init__(self):
         self.dicts = []
