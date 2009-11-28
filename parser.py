@@ -23,7 +23,7 @@ class Parser(object):
         ("right", "STARSTAR"),
     )
     
-    debug = True
+    debug = False
     
     def __init__(self, text):
         self.text = text
@@ -199,7 +199,7 @@ class Parser(object):
     def p_template(self, t):
         """
         template : NAME
-                 | NAME LESS templates GREATER
+                 | NAME LBRACE templates RBRACE
         """
         if len(t) == 2:
             t[0] = ast.NameNode(t[1])
@@ -361,18 +361,17 @@ class Parser(object):
     
     def p_function_definition(self, t):
         """
-        function_definition : template DEF LESS expression GREATER NAME parameters COLON suite
+        function_definition : template DEF LBRACE templates RBRACE NAME parameters COLON suite
                             | DEF NAME parameters COLON suite
         """
         # TODO: This is way too restrictive, it requires a return type to be
-        # templated, and templating only allows a single type
+        # templated.
     
     def p_class_definition(self, t):
         """
-        class_definition : CLASS LESS expression GREATER NAME parameters COLON suite
+        class_definition : CLASS LBRACE templates RBRACE NAME parameters COLON suite
                          | CLASS NAME parameters COLON suite
         """
-        # TODO: This only allows templating over a single type.
     
     def p_decorated(self, t):
         """

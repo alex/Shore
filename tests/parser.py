@@ -101,25 +101,25 @@ class ParserTest(unittest.TestCase):
             "a < 2",
         ]
         self.assert_parses(data, [
-            ("CondNode", ("NameNode", "a"), ("IntegerNode", "2"), "<"),
+            ("CompNode", ("NameNode", "a"), ("IntegerNode", "2"), "<"),
         ])
         
         data = [
-            "list<int>",
+            "list{int}",
         ]
         self.assert_parses(data, [
             ("TemplateNode", ("NameNode", "list"), [("NameNode", "int")]),
         ])
         
         data = [
-            "dict<str, int>",
+            "dict{str, int}",
         ]
         self.assert_parses(data, [
             ("TemplateNode", ("NameNode", "dict"), [("NameNode", "str"), ("NameNode", "int")]),
         ])
         
         data = [
-            "list<str> c = None",
+            "list{str} c = None",
         ]
         self.assert_parses(data, [
             ("DeclarationNode", ("TemplateNode", ("NameNode", "list"), [("NameNode", "str")]), "c", ("NoneNode",)),
@@ -219,7 +219,7 @@ class ParserTest(unittest.TestCase):
         ]
         self.assert_parses(data, [
             ("WhileNode", ("CompNode", ("NameNode", "a"), ("IntegerNode", "10"), "<"), [
-                ("AssignmentNode", "a", ("BinOpNode", ("NameNode", "a"), ("IntegerNode", "1", "+"))),
+                ("AssignmentNode", "a", ("BinOpNode", ("NameNode", "a"), ("IntegerNode", "1"), "+")),
             ])
         ])
 

@@ -1,42 +1,42 @@
-bool def<T> all(iterable<T> items):
+bool def{T} all(iterable{T} items):
     for item in items:
         if not item:
             return False
     return True
 
 
-bool def<T> any(iterable<T> items):
+bool def{T} any(iterable{T} items):
     for item in items:
         if item:
             return True
     return False
 
 
-list<T> def<T> filter(callable<T, bool> function, iterable<T> items):
-    list<t> result
+list{T} def{T} filter(callable{T, bool} function, iterable{T} items):
+    list{T} result
     for item in items:
         if function(item):
             result.append(item)
     return result
 
 
-list<U> def<T, U> map(callable<T, U> function, iterable<T> items):
-    list<U> result
+list{U} def{T, U} map(callable{T, U} function, iterable{T} items):
+    list{U} result
     for item in items:
         result.append(function(item))
     return result
 
-T def<T, U> max(iterable<T> items, callable<T, U> key=lambda o: o):
+T def{T, U} max(iterable{T} items, callable{T, U} key=lambda o: o):
     U max_val = None
     T max_item = None
     for item in items:
         U val = key(item)
-        if max_val is None or val > max_val:
+        if max_val is None or val } max_val:
             max_val = val
             max_item = item
     return max_item
 
-T def<T, U> min(iterable<T> items, callable<T, U> key=lambda o: o):
+T def{T, U} min(iterable{T} items, callable{T, U} key=lambda o: o):
     U min_val = None
     T min_item = None
     for item in items:
