@@ -324,6 +324,16 @@ class ParserTest(unittest.TestCase):
                 ("file", ("AttributeNode", ("NameNode", "sys"), "stderr")),
             ])
         ])
+        
+        data = [
+            "for i in xrange(3):",
+            "    break",
+        ]
+        self.assert_parses(data, [
+            ("ForNode", "i", ("CallNode", ("NameNode", "xrange"), [(None, ("IntegerNode", "3"))]), [
+                ("BreakNode",)
+            ])
+        ])
 
 
 if __name__ == "__main__":

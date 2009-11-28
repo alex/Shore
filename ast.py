@@ -105,3 +105,6 @@ class CallNode(BaseNode):
 
 class AttributeNode(BaseNode):
     attrs = ["value", "attribute"]
+
+class BreakNode(BaseNode):
+    attrs = []

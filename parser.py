@@ -256,6 +256,7 @@ class Parser(object):
         """
         break_statement : BREAK
         """
+        t[0] = ast.BreakNode()
 
     def p_pass_statement(self, t):
         """
