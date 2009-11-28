@@ -28,7 +28,7 @@ class BaseNode(object):
             elif obj is None:
                 pass
             else:
-                getattr(self, attr).bind_to_module(module)
+                obj.bind_to_module(module)
 
 class NodeList(object):
     def __init__(self, nodes):
