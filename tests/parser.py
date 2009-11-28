@@ -19,6 +19,13 @@ class ParserTest(unittest.TestCase):
         ])
         
         data = [
+            "(3)",
+        ]
+        self.assert_parses(data, [
+            ("IntegerNode", "3"),
+        ])
+        
+        data = [
             "True or False",
         ]
         self.assert_parses(data, [
