@@ -222,6 +222,16 @@ class ParserTest(unittest.TestCase):
                 ("AssignmentNode", "a", ("BinOpNode", ("NameNode", "a"), ("IntegerNode", "1"), "+")),
             ])
         ])
+        
+        data = [
+            "for x in y:",
+            "    x + 1",
+        ]
+        self.assert_parses(data, [
+            ("ForNode", "x", ("NameNode", "y"), [
+                ("BinOpNode", ("NameNode", "x"), ("IntegerNode", "1"), "+"),
+            ])
+        ])
 
 
 if __name__ == "__main__":

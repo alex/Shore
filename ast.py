@@ -84,3 +84,6 @@ class IfNode(BaseNode):
 
 class WhileNode(BaseNode):
     attrs = ["condition", "body"]
+
+class ForNode(BaseNode):
+    attrs = ["name", "value", "body"]

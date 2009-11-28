@@ -236,12 +236,27 @@ class Parser(object):
         
     def p_flow_statement(self, t):
         """
-        flow_statement : BREAK
-                       | PASS
-                       | CONTINUE
+        flow_statement : break_statement
+                       | pass_statement
+                       | continue_statement
                        | return_statement
                        | raise_statement
                        | yield_statement
+        """
+    
+    def p_break_statement(self, t):
+        """
+        break_statement : BREAK
+        """
+
+    def p_pass_statement(self, t):
+        """
+        pass_statement : PASS
+        """
+    
+    def p_continue_statement(self, t):
+        """
+        continue_statement : CONTINUE
         """
     
     def p_return_statement(self, t):
@@ -342,7 +357,9 @@ class Parser(object):
         """
         for_statement : FOR NAME IN expression COLON suite
         """
-    
+        # TODO: allow type decls in for_statements
+        t[0] = ast.ForNode(t[2], t[4], t[6])
+
     def p_suite(self, t):
         """
         suite : NEWLINE INDENT statements DEDENT
