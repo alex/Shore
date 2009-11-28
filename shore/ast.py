@@ -169,6 +169,11 @@ class IfNode(BaseNode):
             context.push()
             body.verify(context)
             context.pop()
+        if self.else_body is not None:
+            context.push()
+            self.else_body.verify(context)
+            context.pop()
+
 
 class WhileNode(BaseNode):
     attrs = ["condition", "body"]
