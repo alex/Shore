@@ -232,6 +232,54 @@ class ParserTest(unittest.TestCase):
                 ("BinOpNode", ("NameNode", "x"), ("IntegerNode", "1"), "+"),
             ])
         ])
+        
+        data = [
+            "T def{T} first(iterable{T} items):",
+            "    return items[0]",
+        ]
+        self.assert_parses(data, [
+            ("FunctionNode", "first", [("NameNode", "T")], ("NameNode", "T"), [
+                ("items", ("TemplateNode", ("NameNode", "iterable"), [("NameNode", "T")]), None)
+            ], [
+                ("ReturnNode", ("SubscriptNode", ("NameNode", "items"), ("IntegerNode", "0"))),
+            ])
+        ])
+        
+        data = [
+            "str def hello(str name):",
+            '    return "hello " + name',
+        ]
+        self.assert_parses(data, [
+            ("FunctionNode", "hello", [], ("NameNode", "str"), [
+                ("name", ("NameNode", "str"), None),
+            ], [
+                ("ReturnNode", ("BinOpNode", ("StringNode", "hello "), ("NameNode", "name"), "+"))
+            ])
+        ])
+        
+        data = [
+            "def{T} mutate(iterable{T} items):",
+            "    items[0] = items[1]",
+        ]
+        self.assert_parses(data, [
+            ("FunctionNode", "mutate", [("NameNode", "T")], None, [
+                ("items", ("TemplateNode", ("NameNode", "iterable"), [("NameNode", "T")]), None),
+            ], [
+                ("ItemAssignmentNode", ("NameNode", "items"), ("IntegerNode", "0"), ("SubscriptNode", ("NameNode", "items"), ("IntegerNode", "1"))),
+            ]),
+        ])
+        
+        data = [
+            "def mutate(list{str} items):",
+            '    items[0] = "lol"'
+        ]
+        self.assert_parses(data, [
+            ("FunctionNode", "mutate", [], None, [
+                ("items", ("TemplateNode", ("NameNode", "list"), [("NameNode", "str")]), None),
+            ], [
+                ("ItemAssignmentNode", ("NameNode", "items"), ("IntegerNode", "0"), ("StringNode", "lol")),
+            ]),
+        ])
 
 
 if __name__ == "__main__":

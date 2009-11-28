@@ -87,3 +87,9 @@ class WhileNode(BaseNode):
 
 class ForNode(BaseNode):
     attrs = ["name", "value", "body"]
+
+class FunctionNode(BaseNode):
+    attrs = ["name", "templates", "return_type", "arguments", "body"]
+
+class ReturnNode(BaseNode):
+    attrs = ["value"]

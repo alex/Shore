@@ -243,6 +243,7 @@ class Parser(object):
                        | raise_statement
                        | yield_statement
         """
+        t[0] = t[1]
     
     def p_break_statement(self, t):
         """
@@ -263,6 +264,7 @@ class Parser(object):
         """
         return_statement : RETURN expression
         """
+        t[0] = ast.ReturnNode(t[2])
     
     def p_raise_statement(self, t):
         """
@@ -379,10 +381,19 @@ class Parser(object):
     def p_function_definition(self, t):
         """
         function_definition : template DEF LBRACE templates RBRACE NAME parameters COLON suite
+                            | template DEF NAME parameters COLON suite
+                            | DEF LBRACE templates RBRACE NAME parameters COLON suite
                             | DEF NAME parameters COLON suite
         """
-        # TODO: This is way too restrictive, it requires a return type to be
-        # templated.
+        if len(t) == 10:
+            t[0] = ast.FunctionNode(t[6], t[4], t[1], t[7], t[9])
+        elif len(t) == 7:
+            t[0] = ast.FunctionNode(t[3], [], t[1], t[4], t[6])
+        elif len(t) == 9:
+            t[0] = ast.FunctionNode(t[5], t[3], None, t[6], t[8])
+        elif len(t) == 6:
+            t[0] = ast.FunctionNode(t[2], [], None, t[3], t[5])
+        
     
     def p_class_definition(self, t):
         """
@@ -411,10 +422,32 @@ class Parser(object):
     def p_parameters(self, t):
         """
         parameters : LPAR RPAR
-                   | LPAR expression NAME RPAR
+                   | LPAR params RPAR
         """
-        # TODO: This supports taking 0 or 1 params now, and doesn't allow
-        # default arguments
+        if len(t) == 3:
+            t[0] = []
+        else:
+            t[0] = t[2]
+    
+    def p_params(self, t):
+        """
+        params : param
+               | params param
+        """
+        if len(t) == 2:
+            t[0] = [t[1]]
+        else:
+            t[0] = t[1] + [t[2]]
+    
+    def p_param(self, t):
+        """
+        param : template NAME
+              | template NAME EQUAL expression
+        """
+        if len(t) == 3:
+            t[0] = (t[2], t[1], None)
+        else:
+            t[0] = (t[2], t[1], t[4])
     
     def p_arglist(self, t):
         """
