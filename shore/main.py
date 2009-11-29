@@ -1,4 +1,4 @@
-from shore.builtins import Integer, Boolean
+from shore.builtins import Integer, Boolean, Print
 from shore.lexer import Lexer
 from shore.module import Module
 from shore.parser import Parser
@@ -21,6 +21,7 @@ class Shore(object):
             "bool": Boolean,
             "int": Integer,
         }, {
+            "print": Print
         })
         m.from_ast(self.parse())
         return m

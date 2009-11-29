@@ -86,6 +86,37 @@ class FloatNode(BaseNode):
 class BinOpNode(BaseNode):
     attrs = ["left", "right", "op"]
     needs_bind_to_module = ["left", "right"]
+    
+    def get_func(self, context):
+        method_names = {
+            "*": "__mul__",
+            "/": "__div__",
+            "%": "__mod__",
+            "+": "__add__",
+            "-": "__sub__",
+            "&": "__and__",
+            "|": "__or__",
+            "^": "__xor__",
+        }
+        
+        left_type, right_type = self.left.type(context), self.right.type(context)
+        method = method_names[self.op]
+        reverse_method = "__r%s__" % method.split("__")[1]
+        if method in left_type.functions:
+            if left_type.functions[method].arguments[1] is right_type:
+                return left_type.functions[method]
+        if reverse_method in right_type.functions:
+            if right_type.functions[reverse_method].arguments[1] is left_type:
+                return right_type.functions[method]
+        raise CompileError("Can't do %s on %s, %s" % (self.op, left_type, right_type))
+    
+    def verify(self, context):
+        self.left.verify(context)
+        self.right.verify(context)
+        self.get_func(context)
+    
+    def type(self, context):
+        return self.get_func(context).return_type
 
 class CompNode(BaseNode):
     attrs = ["left", "right", "op"]
@@ -185,14 +216,16 @@ class ForNode(BaseNode):
 
 class FunctionNode(BaseNode):
     attrs = ["name", "templates", "return_type", "arguments", "body"]
-    needs_bind_to_module = ["templates", "return_type", "arguments", "body"]
+    needs_bind_to_module = ["templates", "arguments", "body"]
+    
+    def bind_to_module(self, module):
+        super(FunctionNode, self).bind_to_module(module)
+        self.return_type = module.classes[self.return_type.name] if self.return_type is not None else None
     
     def verify(self, context=None):
         if context is None:
-            context = Context()
+            context = Context(self.return_type)
         context.push()
-        if self.return_type is not None and not hasattr(self.return_type, "value"):
-            raise CompileError("Return type for %s doesn't exist." % self.name)
         for name, type, default in self.arguments:
             if not hasattr(type, "value"):
                 raise CompileError("Argument %s for %s's type doesn't exist." % (name, self.name))
@@ -206,6 +239,9 @@ class ReturnNode(BaseNode):
     
     def verify(self, context):
         self.value.verify(context)
+        if context.return_type is not self.value.type(context):
+            import ipdb; ipdb.set_trace()
+            raise CompileError("Return type does not match returned type.")
 
 class ClassNode(BaseNode):
     attrs = ["name", "templates", "superclasses", "body"]
@@ -216,11 +252,18 @@ class PassNode(BaseNode):
 
 class CallNode(BaseNode):
     attrs = ["function", "arguments"]
-    needs_bind_to_module = ["function", "arguments"]
+    needs_bind_to_module = ["arguments"]
+    
+    def bind_to_module(self, module):
+        super(CallNode, self).bind_to_module(module)
+        self.function = module.functions[self.function]
     
     def verify(self, context):
         #TODO: everything
         pass
+    
+    def type(self, context):
+        return self.function.return_type
 
 class AttributeNode(BaseNode):
     attrs = ["value", "attribute"]

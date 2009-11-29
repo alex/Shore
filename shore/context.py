@@ -3,8 +3,9 @@ A stack of dictionaries for checking types in functions.
 """
 
 class Context(object):
-    def __init__(self):
+    def __init__(self, return_type=None):
         self.dicts = []
+        self.return_type = return_type
     
     def push(self):
         self.dicts.append({})

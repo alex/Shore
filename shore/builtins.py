@@ -10,6 +10,12 @@ class Function(object):
     def __init__(self, return_type, arguments):
         self.return_type = return_type
         self.arguments = arguments
+    
+    def bind_to_module(self, module):
+        pass
+    
+    def verify(self):
+        pass
 
 class BuiltinTypeMetaclass(type):
     def __new__(cls, name, bases, attrs):
@@ -46,3 +52,9 @@ class Boolean(Builtin):
 
 class Integer(Builtin):
     __eq__ = Function(Boolean, ["self", "self"])
+    __add__ = Function("self", ["self", "self"])
+
+class String(Builtin):
+    pass
+
+Print = Function(String, [Integer])
