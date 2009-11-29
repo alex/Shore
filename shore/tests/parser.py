@@ -312,14 +312,14 @@ class ParserTest(unittest.TestCase):
             "print(3)",
         ]
         self.assert_parses(data, [
-            ("CallNode", "print", [(None, ("IntegerNode", "3"))])
+            ("CallNode", ("NameNode", "print"), [(None, ("IntegerNode", "3"))])
         ])
         
         data = [
             "print(3, file=sys.stderr)",
         ]
         self.assert_parses(data, [
-            ("CallNode", "print", [
+            ("CallNode", ("NameNode", "print"), [
                 (None, ("IntegerNode", "3")),
                 ("file", ("AttributeNode", ("NameNode", "sys"), "stderr")),
             ])
@@ -330,7 +330,7 @@ class ParserTest(unittest.TestCase):
             "    break",
         ]
         self.assert_parses(data, [
-            ("ForNode", "i", ("CallNode", "xrange", [(None, ("IntegerNode", "3"))]), [
+            ("ForNode", "i", ("CallNode", ("NameNode", "xrange"), [(None, ("IntegerNode", "3"))]), [
                 ("BreakNode",)
             ])
         ])
@@ -348,7 +348,7 @@ class ParserTest(unittest.TestCase):
                         ("ReturnNode", ("IntegerNode", "1"))
                     ])
                 ], None),
-                ("ReturnNode", ("BinOpNode", ("CallNode", "factorial", [(None, ("BinOpNode", ("NameNode", "n"), ("IntegerNode", "1"), "-"))]), ("CallNode", "factorial", [(None, ("BinOpNode", ("NameNode", "n"), ("IntegerNode", "2"), "-"))]), "+")),
+                ("ReturnNode", ("BinOpNode", ("CallNode", ("NameNode", "factorial"), [(None, ("BinOpNode", ("NameNode", "n"), ("IntegerNode", "1"), "-"))]), ("CallNode", ("NameNode", "factorial"), [(None, ("BinOpNode", ("NameNode", "n"), ("IntegerNode", "2"), "-"))]), "+")),
             ])
         ])
 

@@ -255,7 +255,7 @@ class CallNode(BaseNode):
     
     def bind_to_module(self, module):
         super(CallNode, self).bind_to_module(module)
-        self.function = module.functions[self.function]
+        self.function = module.functions[self.function.name]
     
     def verify(self, context):
         # TODO: Doens't handle named, or default arguments
