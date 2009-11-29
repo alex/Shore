@@ -103,10 +103,10 @@ class BinOpNode(BaseNode):
         method = method_names[self.op]
         reverse_method = "__r%s__" % method.split("__")[1]
         if method in left_type.functions:
-            if left_type.functions[method].arguments[1] is right_type:
+            if left_type.functions[method].arguments[1][1] is right_type:
                 return left_type.functions[method]
         if reverse_method in right_type.functions:
-            if right_type.functions[reverse_method].arguments[1] is left_type:
+            if right_type.functions[reverse_method].arguments[1][1] is left_type:
                 return right_type.functions[method]
         raise CompileError("Can't do %s on %s, %s" % (self.op, left_type, right_type))
     
@@ -138,7 +138,7 @@ class CompNode(BaseNode):
         method = method_names[self.op]
         if method not in left_type.functions:
             raise CompileError("Can't do %s on %s" % (self.op, self.left_type))
-        if left_type.functions[method].arguments[1] is not right_type:
+        if left_type.functions[method].arguments[1][1] is not right_type:
             raise CompileError("Can't do %s on types %s, %s" % (self.op,
                 left_type, right_type))
 
@@ -259,8 +259,15 @@ class CallNode(BaseNode):
         self.function = module.functions[self.function]
     
     def verify(self, context):
-        #TODO: everything
-        pass
+        args = self.function.arguments
+        if len(args) != len(self.arguments):
+            raise CompileError("Argument count mismatch, %s expected, received %s" %
+                (len(args), len(self.arguments)))
+        for expected_arg, provided_arg in zip(args, self.arguments):
+            expected_type = expected_arg[1].value if hasattr(expected_arg[1], "value") else expected_arg[1]
+            if expected_type is not provided_arg[1].type(context):
+                raise CompileError("Argument type mismatch, %s expected, recieved %s" %
+                    (expected_type, provided_arg[1].type(context)))
     
     def type(self, context):
         return self.function.return_type
