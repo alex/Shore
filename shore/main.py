@@ -1,4 +1,4 @@
-from shore.builtins import Integer
+from shore.builtins import Integer, Boolean
 from shore.lexer import Lexer
 from shore.module import Module
 from shore.parser import Parser
@@ -18,6 +18,7 @@ class Shore(object):
     def to_module(self):
         m = Module("__main__")
         m.add_builtins({
+            "bool": Boolean,
             "int": Integer,
         }, {
         })

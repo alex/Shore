@@ -41,5 +41,8 @@ class Builtin(object):
         pass
 
 
+class Boolean(Builtin):
+    pass
+
 class Integer(Builtin):
-    __eq__ = Function("self", ["self", "self"])
+    __eq__ = Function(Boolean, ["self", "self"])
