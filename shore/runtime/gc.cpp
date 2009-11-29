@@ -3,7 +3,7 @@
 
 namespace shore {
     shore::Object* shore::GC::register_object(shore::Object* obj) {
-        this->allocated_objects.insert(obj);
+        shore::GC::allocated_objects.insert(obj);
         return obj;
     }
     
@@ -11,8 +11,8 @@ namespace shore {
         shore::GCSet reachable;
         std::vector<shore::GCSet> to_process;
         
-        for (int i = 0; i < shore::State.frames.size(); i++) {
-            to_process.push_back(shore::State.frames[i]->__get_sub_objects());
+        for (int i = 0; i < shore::State::frames.size(); i++) {
+            to_process.push_back(shore::State::frames[i]->__get_sub_objects());
         }
         
         while (!to_process.empty()) {
@@ -27,11 +27,11 @@ namespace shore {
             }
         }
         
-        for (shore::GCSet::iterator itr = this->allocated_objects.begin();
-            itr != this->allocated_objects.end(); itr++) {
+        for (shore::GCSet::iterator itr = shore::GC::allocated_objects.begin();
+            itr != shore::GC::allocated_objects.end(); itr++) {
             if (!reachable.count(*itr)) {
                 delete *itr;
-                this->allocated_objects.erase(itr);
+                shore::GC::allocated_objects.erase(itr);
             }
         }
     }

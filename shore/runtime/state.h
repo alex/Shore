@@ -10,7 +10,7 @@
 namespace shore {
     class State {
         public:
-            std::vector<shore::Frame*> frames;
+            static std::vector<shore::Frame*> frames;
     };
 }
 #endif

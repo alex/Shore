@@ -7,14 +7,12 @@
 
 
 namespace shore {
-    typedef std::set<shore::Object*> GCSet;
-
     class GC {
         public:
-            GCSet allocated_objects;
+            static GCSet allocated_objects;
             
-            shore::Object* register_object(shore::Object* obj);
-            void collect();
+            static shore::Object* register_object(shore::Object* obj);
+            static void collect();
     };
 }
 #endif
