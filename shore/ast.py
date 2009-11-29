@@ -259,6 +259,7 @@ class CallNode(BaseNode):
         self.function = module.functions[self.function]
     
     def verify(self, context):
+        # TODO: Doens't handle named, or default arguments
         args = self.function.arguments
         if len(args) != len(self.arguments):
             raise CompileError("Argument count mismatch, %s expected, received %s" %
