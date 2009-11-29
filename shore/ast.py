@@ -240,7 +240,6 @@ class ReturnNode(BaseNode):
     def verify(self, context):
         self.value.verify(context)
         if context.return_type is not self.value.type(context):
-            import ipdb; ipdb.set_trace()
             raise CompileError("Return type does not match returned type.")
 
 class ClassNode(BaseNode):
