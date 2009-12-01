@@ -45,7 +45,12 @@ class Main(object):
         open("ir.cpp", "w").write(code)
         pwd = os.path.dirname(os.path.abspath(__file__))
         loc = os.path.join(pwd, "runtime")
-        ret = subprocess.call(["g++", "ir.cpp", os.path.join(pwd, "runtime", "gc.cpp"), "-I%s" % loc])
+        ret = subprocess.call([
+            "g++",
+            "ir.cpp",
+            os.path.join(pwd, "runtime", "gc.cpp"),
+            "-I%s" % loc
+        ])
         if ret == 0:
             os.remove("ir.cpp")
 
