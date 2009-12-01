@@ -326,7 +326,7 @@ class FunctionNode(BaseNode):
             },
         ]
         if self.return_type is not None:
-            code.append("%s* __return;" % self.return_type.class_name,)
+            code.append("%s* __return = NULL;" % self.return_type.class_name)
         code.append("%s__frame frame;" % self.name)
         code.append("shore::State::frames.push_back(&frame);")
         
