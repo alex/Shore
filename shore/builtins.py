@@ -7,15 +7,22 @@ RECURSIVE_TYPE_CONSTANT = "self"
 
 
 class Function(object):
-    def __init__(self, return_type, arguments):
+    def __init__(self, return_type, arguments, name=None):
         self.return_type = return_type
         self.arguments = arguments
+        self.name = name
     
     def bind_to_module(self, module):
         pass
     
     def verify(self):
         pass
+    
+    def get_frame_class(self):
+        return []
+    
+    def generate_code(self):
+        return []
 
 class BuiltinTypeMetaclass(type):
     def __new__(cls, name, bases, attrs):
@@ -45,12 +52,18 @@ class Builtin(object):
     @classmethod
     def verify(cls):
         pass
+    
+    @classmethod
+    def generate_code(self):
+        return []
 
 
 class Boolean(Builtin):
     pass
 
 class Integer(Builtin):
+    class_name = "shore::builtin__int"
+    
     __eq__ = Function(Boolean, [(None, "self", None), (None, "self", None)])
     __add__ = Function("self", [(None, "self", None), (None, "self", None)])
     __sub__ = Function("self", [(None, "self", None), (None, "self", None)])
@@ -58,4 +71,4 @@ class Integer(Builtin):
 class String(Builtin):
     pass
 
-Print = Function(String, [(None, Integer, None)])
+Print = Function(String, [(None, Integer, None)], name="builtin__print")

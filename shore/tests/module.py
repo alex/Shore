@@ -6,8 +6,8 @@ from shore.main import Shore
 
 
 class ModuleTest(unittest.TestCase):
-    def to_module(self, source):
-        return Shore("\n".join(source)).to_module()
+    def generate_code(self, source):
+        return Shore("\n".join(source)).generate_code()
     
     def test_simple(self):
         source = [
@@ -20,7 +20,8 @@ class ModuleTest(unittest.TestCase):
             "    print(factorial(5))",
             "    print(factorial(13))",
         ]
-        m = self.to_module(source)
+        m = self.generate_code(source)
+        print m
 
 
 if __name__ == "__main__":

@@ -57,3 +57,18 @@ class Module(object):
         
         for obj in itertools.chain(self.functions.itervalues(), self.classes.itervalues()):
             obj.verify()
+    
+    def generate_code(self):
+        code = [
+            '#include "builtins.h"',
+            '#include "frame.h"',
+        ]
+        for class_ in self.classes.values():
+            code.extend(class_.generate_code())
+        
+        for function in self.functions.values():
+            code.extend(function.get_frame_class())
+        for function in self.functions.values():
+            code.extend(function.generate_code())
+        
+        return "\n".join(code)

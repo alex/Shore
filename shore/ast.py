@@ -56,6 +56,23 @@ class NodeList(object):
     def verify(self, context):
         for node in self.nodes:
             node.verify(context)
+    
+    def get_locals(self):
+        variables = {}
+        for node in self.nodes:
+            if hasattr(node, "get_locals"):
+                variables.update(node.get_locals())
+        return variables
+    
+    def generate_code(self):
+        code = []
+        for node in self.nodes:
+            co = node.generate_code()
+            if isinstance(co, basestring):
+                code.append("%s;" % co)
+            else:
+                code.extend(co)
+        return code
 
 class NoneNode(BaseNode):
     attrs = []
@@ -78,6 +95,9 @@ class IntegerNode(BaseNode):
     
     def type(self, context):
         return Integer
+    
+    def generate_code(self):
+        return "builtin__int::new_instance(%s)" % self.value
 
 class FloatNode(BaseNode):
     attrs = ["value"]
@@ -86,21 +106,21 @@ class FloatNode(BaseNode):
 class BinOpNode(BaseNode):
     attrs = ["left", "right", "op"]
     needs_bind_to_module = ["left", "right"]
+
+    method_names = {
+        "*": "__mul__",
+        "/": "__div__",
+        "%": "__mod__",
+        "+": "__add__",
+        "-": "__sub__",
+        "&": "__and__",
+        "|": "__or__",
+        "^": "__xor__",
+    }
     
     def get_func(self, context):
-        method_names = {
-            "*": "__mul__",
-            "/": "__div__",
-            "%": "__mod__",
-            "+": "__add__",
-            "-": "__sub__",
-            "&": "__and__",
-            "|": "__or__",
-            "^": "__xor__",
-        }
-        
         left_type, right_type = self.left.type(context), self.right.type(context)
-        method = method_names[self.op]
+        method = self.method_names[self.op]
         reverse_method = "__r%s__" % method.split("__")[1]
         if method in left_type.functions:
             if left_type.functions[method].arguments[1][1] is right_type:
@@ -117,30 +137,38 @@ class BinOpNode(BaseNode):
     
     def type(self, context):
         return self.get_func(context).return_type
+    
+    def generate_code(self):
+        # TODO: doesn't handle the reverse case
+        return "(%s)->%s(%s)" % (self.left.generate_code(), self.method_names[self.op], self.right.generate_code())
 
 class CompNode(BaseNode):
     attrs = ["left", "right", "op"]
     needs_bind_to_module = ["left", "right"]
+
+    method_names = {
+        "==": "__eq__",
+        "!=": "__ne__",
+        ">": "__gt__",
+        "<": "__lt__",
+        ">=": "__ge__",
+        "<=": "__le__",
+    }
     
     def verify(self, context):
-        method_names = {
-            "==": "__eq__",
-            "!=": "__ne__",
-            ">": "__gt__",
-            "<": "__lt__",
-            ">=": "__ge__",
-            "<=": "__le__",
-        }
         self.left.verify(context)
         self.right.verify(context)
         
         left_type, right_type = self.left.type(context), self.right.type(context)
-        method = method_names[self.op]
+        method = self.method_names[self.op]
         if method not in left_type.functions:
             raise CompileError("Can't do %s on %s" % (self.op, self.left_type))
         if left_type.functions[method].arguments[1][1] is not right_type:
             raise CompileError("Can't do %s on types %s, %s" % (self.op,
                 left_type, right_type))
+    
+    def generate_code(self):
+        return "(%s)->%s(%s)" % (self.left.generate_code(), self.method_names[self.op], self.right.generate_code())
 
 class ContainsNode(BaseNode):
     attrs = ["obj", "seq"]
@@ -165,6 +193,11 @@ class NameNode(BaseNode):
     
     def type(self, context):
         return context[self.name]
+    
+    def generate_code(self):
+        if hasattr(self, "value"):
+            return [self.value.class_name]
+        return "frame->%s" % self.name
 
 class DeclarationNode(BaseNode):
     attrs = ["type", "name", "value"]
@@ -204,6 +237,23 @@ class IfNode(BaseNode):
             context.push()
             self.else_body.verify(context)
             context.pop()
+    
+    def generate_code(self):
+        code = []
+        conditions = iter(self.conditions)
+        condition, body = conditions.next()
+        code.append("if ((%s)->value) {" % condition.generate_code())
+        code.extend(body.generate_code())
+        code.append("}")
+        for condition, body in conditions:
+            code.append("else if ((%s)->value) {" % condition.generate_code())
+            code.extend(body.generate_code())
+            code.append("}")
+        if self.else_body is not None:
+            code.append("else {")
+            code.extend(self.else_body.generate_code())
+            code.append("}")
+        return code
 
 
 class WhileNode(BaseNode):
@@ -232,6 +282,50 @@ class FunctionNode(BaseNode):
             context[name] = type.value
         
         self.body.verify(context)
+    
+    def get_locals(self):
+        variables = dict([(name, type.value) for name, type, default in self.arguments])
+        variables.update(self.body.get_locals())
+        return variables
+    
+    def get_frame_class(self):
+        variables = self.get_locals()
+        code = [
+            "class %s__frame : public shore::Frame {" % self.name,
+        ]
+        for name, type in variables.iteritems():
+            code.append("%(type)s* %(name)s;" % {"name": name, "type": type.class_name})
+        code.append("shore::GCSet __get_sub_objects() {")
+        code.append("GCSet s;")
+        for name in variables:
+            code.append("s.insert(this->%s);" % (name))
+        code.append("return s;")
+        code.append("}")
+        code.append("};")
+        return code
+    
+    def generate_code(self):
+        code = [
+            "%(return_type)s %(name)s(%(parameters)s) {" % {
+                "return_type": self.return_type.class_name if self.return_type is not None else "void",
+                "name": self.name,
+                "parameters": ", ".join(["%s* %s" % (type.value.class_name, name) for name, type, default in self.arguments]),
+            },
+        ]
+        if self.return_type is not None:
+            code.append("%s* __return;" % self.return_type.class_name,)
+        code.append("%s__frame frame;" % self.name)
+        code.append("shore::State::frames.push_back(&frame);")
+
+        for name, _, _ in self.arguments:
+            code.append("frame->%s = %s;" % (name, name))
+        
+        code.extend(self.body.generate_code())
+        
+        if self.return_type is None:
+            code.append("shore::State::frames.pop_back();")
+        code.append("}")
+        return code
 
 class ReturnNode(BaseNode):
     attrs = ["value"]
@@ -241,6 +335,14 @@ class ReturnNode(BaseNode):
         self.value.verify(context)
         if context.return_type is not self.value.type(context):
             raise CompileError("Return type does not match returned type.")
+    
+    def generate_code(self):
+        code = []
+        code.append("__return = %s;" % self.value.generate_code())
+        code.append("shore::State::frames.pop_back();")
+        code.append("shore::GC.collect();")
+        code.append("return __return;")
+        return code
 
 class ClassNode(BaseNode):
     attrs = ["name", "templates", "superclasses", "body"]
@@ -271,6 +373,10 @@ class CallNode(BaseNode):
     
     def type(self, context):
         return self.function.return_type
+    
+    def generate_code(self):
+        # TODO: named args
+        return "%s(%s)" % (self.function.name, ", ".join(arg.generate_code() for name, arg in self.arguments))
 
 class AttributeNode(BaseNode):
     attrs = ["value", "attribute"]

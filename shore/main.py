@@ -25,3 +25,6 @@ class Shore(object):
         })
         m.from_ast(self.parse())
         return m
+    
+    def generate_code(self):
+        return self.to_module().generate_code()
