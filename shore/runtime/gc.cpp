@@ -23,7 +23,9 @@ namespace shore {
                 itr != reachable_objs.end(); itr++) {
                 if (!reachable.count(*itr)) {
                     reachable.insert(*itr);
-                    to_process.push_back((*itr)->__get_sub_objects());
+                    if (*itr != NULL) {
+                        to_process.push_back((*itr)->__get_sub_objects());
+                    }
                 }
             }
         }

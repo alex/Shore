@@ -202,6 +202,18 @@ class NameNode(BaseNode):
 class DeclarationNode(BaseNode):
     attrs = ["type", "name", "value"]
     needs_bind_to_module = ["type", "value"]
+    
+    def verify(self, context):
+        context[self.name] = self.type.value
+        self.value.verify(context)
+        if self.value.type(context) is not self.type.value:
+            raise CompileError("%s RHS doesn't match type." % (self.name))
+    
+    def get_locals(self):
+        return {self.name: self.type.value}
+    
+    def generate_code(self):
+        return ["frame.%s = %s;" % (self.name, self.value.generate_code())]
 
 class SubscriptNode(BaseNode):
     attrs = ["value", "index"]
@@ -317,6 +329,9 @@ class FunctionNode(BaseNode):
             code.append("%s* __return;" % self.return_type.class_name,)
         code.append("%s__frame frame;" % self.name)
         code.append("shore::State::frames.push_back(&frame);")
+        
+        for name in self.get_locals():
+            code.append("frame.%s = NULL;" % name)
 
         for name, _, _ in self.arguments:
             code.append("frame.%s = %s;" % (name, name))
