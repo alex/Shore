@@ -298,6 +298,8 @@ class FunctionNode(BaseNode):
     def get_locals(self):
         variables = dict([(name, type.value) for name, type, default in self.arguments])
         variables.update(self.body.get_locals())
+        if self.return_type is not None:
+            variables["_return_"] = self.return_type
         return variables
     
     def get_frame_class(self):
@@ -325,11 +327,9 @@ class FunctionNode(BaseNode):
                 "parameters": ", ".join(["%s* %s" % (type.value.class_name, name) for name, type, default in self.arguments]),
             },
         ]
-        if self.return_type is not None:
-            code.append("%s* __return = NULL;" % self.return_type.class_name)
         code.append("%s__frame frame;" % self.name)
         code.append("shore::State::frames.push_back(&frame);")
-        
+
         for name in self.get_locals():
             code.append("frame.%s = NULL;" % name)
 
@@ -354,10 +354,10 @@ class ReturnNode(BaseNode):
     
     def generate_code(self):
         code = []
-        code.append("__return = %s;" % self.value.generate_code())
-        code.append("shore::State::frames.pop_back();")
+        code.append("frame._return_ = %s;" % self.value.generate_code())
         code.append("shore::GC::collect();")
-        code.append("return __return;")
+        code.append("shore::State::frames.pop_back();")
+        code.append("return frame._return_;")
         return code
 
 class ClassNode(BaseNode):

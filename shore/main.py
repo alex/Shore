@@ -48,6 +48,7 @@ class Main(object):
         ret = subprocess.call([
             "g++",
             "-g",
+            "-Wall",
             "ir.cpp",
             os.path.join(pwd, "runtime", "gc.cpp"),
             "-I%s" % loc
