@@ -12,7 +12,7 @@ namespace shore {
         shore::GCSet reachable;
         std::vector<shore::GCSet> to_process;
         
-        for (int i = 0; i < shore::State::frames.size(); i++) {
+        for (size_t i = 0; i < shore::State::frames.size(); i++) {
             to_process.push_back(shore::State::frames[i]->__get_sub_objects());
         }
         
@@ -37,7 +37,7 @@ namespace shore {
                 deleted.push_back(*itr);
             }
         }
-        for (int i = 0; i < deleted.size(); i++) {
+        for (size_t i = 0; i < deleted.size(); i++) {
             shore::GC::allocated_objects.erase(deleted[i]);
         }
     }
