@@ -11,7 +11,7 @@ namespace shore {
         public:
             static GCSet allocated_objects;
             
-            static shore::Object* register_object(shore::Object* obj);
+            static void register_object(shore::Object* obj);
             static void collect();
     };
 }

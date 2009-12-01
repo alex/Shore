@@ -97,7 +97,7 @@ class IntegerNode(BaseNode):
         return Integer
     
     def generate_code(self):
-        return "builtin__int::new_instance(%s)" % self.value
+        return "shore::builtin__int::new_instance(%s)" % self.value
 
 class FloatNode(BaseNode):
     attrs = ["value"]
@@ -197,7 +197,7 @@ class NameNode(BaseNode):
     def generate_code(self):
         if hasattr(self, "value"):
             return [self.value.class_name]
-        return "frame->%s" % self.name
+        return "frame.%s" % self.name
 
 class DeclarationNode(BaseNode):
     attrs = ["type", "name", "value"]
@@ -292,11 +292,12 @@ class FunctionNode(BaseNode):
         variables = self.get_locals()
         code = [
             "class %s__frame : public shore::Frame {" % self.name,
+            "public:",
         ]
         for name, type in variables.iteritems():
             code.append("%(type)s* %(name)s;" % {"name": name, "type": type.class_name})
         code.append("shore::GCSet __get_sub_objects() {")
-        code.append("GCSet s;")
+        code.append("shore::GCSet s;")
         for name in variables:
             code.append("s.insert(this->%s);" % (name))
         code.append("return s;")
@@ -307,7 +308,7 @@ class FunctionNode(BaseNode):
     def generate_code(self):
         code = [
             "%(return_type)s %(name)s(%(parameters)s) {" % {
-                "return_type": self.return_type.class_name if self.return_type is not None else "void",
+                "return_type": self.return_type.class_name+"*" if self.return_type is not None else ("void" if self.name != "main" else "int"),
                 "name": self.name,
                 "parameters": ", ".join(["%s* %s" % (type.value.class_name, name) for name, type, default in self.arguments]),
             },
@@ -318,7 +319,7 @@ class FunctionNode(BaseNode):
         code.append("shore::State::frames.push_back(&frame);")
 
         for name, _, _ in self.arguments:
-            code.append("frame->%s = %s;" % (name, name))
+            code.append("frame.%s = %s;" % (name, name))
         
         code.extend(self.body.generate_code())
         
@@ -340,7 +341,7 @@ class ReturnNode(BaseNode):
         code = []
         code.append("__return = %s;" % self.value.generate_code())
         code.append("shore::State::frames.pop_back();")
-        code.append("shore::GC.collect();")
+        code.append("shore::GC::collect();")
         code.append("return __return;")
         return code
 

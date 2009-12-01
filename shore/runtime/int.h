@@ -5,13 +5,15 @@
 
 
 namespace shore {
-    class builtin__int {
+    class builtin__int : public shore::Object {
         public:
             // Some day this will be arbitrary percision, but not today.
             long long value;
             
             static builtin__int* new_instance(long long value_) {
-                return shore::GC::register_object(new builtin__int(value_));
+                builtin__int* val = new builtin__int(value_);
+                shore::GC::register_object(val);
+                return val;
             }
             
             builtin__int(long long value_) {
@@ -19,7 +21,7 @@ namespace shore {
             }
             
             builtin__bool* __eq__(builtin__int* other) {
-                return builtin__bool::new_instance(this->value == other->value));
+                return builtin__bool::new_instance(this->value == other->value);
             }
             
             builtin__int* __add__(builtin__int* other) {

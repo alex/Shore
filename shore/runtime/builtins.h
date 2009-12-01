@@ -8,7 +8,7 @@
 
 namespace shore {
     void builtin__print(shore::builtin__int* val) {
-        std::iostream << val->value << std::endl;
+        std::cout << val->value << std::endl;
     }
 }
 

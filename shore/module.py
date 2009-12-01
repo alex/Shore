@@ -62,6 +62,8 @@ class Module(object):
         code = [
             '#include "builtins.h"',
             '#include "frame.h"',
+            '#include "object.h"',
+            '#include "state.h"',
         ]
         for class_ in self.classes.values():
             code.extend(class_.generate_code())

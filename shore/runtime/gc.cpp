@@ -1,10 +1,11 @@
 #include "gc.h"
 #include "state.h"
+#include "frame.h"
+
 
 namespace shore {
-    shore::Object* shore::GC::register_object(shore::Object* obj) {
+    void shore::GC::register_object(shore::Object* obj) {
         shore::GC::allocated_objects.insert(obj);
-        return obj;
     }
     
     void shore::GC::collect() {
