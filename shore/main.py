@@ -47,12 +47,11 @@ class Main(object):
         loc = os.path.join(pwd, "runtime")
         ret = subprocess.call([
             "g++",
+            "-g",
             "ir.cpp",
             os.path.join(pwd, "runtime", "gc.cpp"),
             "-I%s" % loc
         ])
-        if ret == 0:
-            os.remove("ir.cpp")
 
 if __name__ == "__main__":
     Main(sys.argv).main()

@@ -65,6 +65,9 @@ class Module(object):
             '#include "object.h"',
             '#include "state.h"',
         ]
+        
+        code.append("std::vector<shore::Frame*> shore::State::frames;")
+        code.append("shore::GCSet shore::GC::allocated_objects;")
         for class_ in self.classes.values():
             code.extend(class_.generate_code())
         

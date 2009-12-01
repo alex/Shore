@@ -31,6 +31,10 @@ namespace shore {
             builtin__int* __sub__(builtin__int* other) {
                 return builtin__int::new_instance(this->value - other->value);
             }
+            
+            builtin__int* __mul__(builtin__int* other) {
+                return builtin__int::new_instance(this->value * other->value);
+            }
     };
 }
 #endif

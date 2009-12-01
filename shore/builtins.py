@@ -67,6 +67,8 @@ class Integer(Builtin):
     __eq__ = Function(Boolean, [(None, "self", None), (None, "self", None)])
     __add__ = Function("self", [(None, "self", None), (None, "self", None)])
     __sub__ = Function("self", [(None, "self", None), (None, "self", None)])
+    __mul__ = Function("self", [(None, "self", None), (None, "self", None)])
+
 
 class String(Builtin):
     pass
