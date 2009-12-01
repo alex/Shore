@@ -29,13 +29,16 @@ namespace shore {
                 }
             }
         }
-        
+        std::vector<shore::Object*> deleted;
         for (shore::GCSet::iterator itr = shore::GC::allocated_objects.begin();
             itr != shore::GC::allocated_objects.end(); itr++) {
             if (!reachable.count(*itr)) {
                 delete *itr;
-                shore::GC::allocated_objects.erase(itr);
+                deleted.push_back(*itr);
             }
+        }
+        for (int i = 0; i < deleted.size(); i++) {
+            shore::GC::allocated_objects.erase(deleted[i]);
         }
     }
 }

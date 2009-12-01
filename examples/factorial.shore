@@ -1,9 +1,8 @@
 int def factorial(int n):
     if n == 0:
         return 1
-    int b = n * factorial(n-1)
-    return b
+    return n*factorial(n-1)
 
 def main():
-    print(factorial(9))
+    print(factorial(3))
 
