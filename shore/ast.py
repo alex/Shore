@@ -340,6 +340,7 @@ class FunctionNode(BaseNode):
         
         if self.return_type is None:
             code.append("shore::State::frames.pop_back();")
+            code.append("shore::GC::collect();")
         code.append("}")
         return code
 
