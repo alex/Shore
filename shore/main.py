@@ -4,6 +4,8 @@ import os
 import subprocess
 import sys
 
+import argparse
+
 from shore.builtins import Integer, Boolean, Print
 from shore.lexer import Lexer
 from shore.module import Module
@@ -36,23 +38,34 @@ class Shore(object):
         return self.to_module().generate_code()
 
 class Main(object):
-    def __init__(self, args):
-        self.args = args
-    
     def main(self):
-        f = self.args[1]
-        code = Shore(open(f).read()).generate_code()
+        parser = argparse.ArgumentParser(description="The shore compiler.")
+        parser.add_argument("file", type=argparse.FileType("r"), help="The file to compile.")
+        parser.add_argument("-o", default="a.out", help="The out files name.")
+        parser.add_argument("-S", action="store_true", default=False,
+            help="Output the assembley, instead of the executable.")
+        parser.add_argument("--dont-remove", action="store_true", default=False,
+            help="Don't delete the IR (C++) after compiling.")
+        
+        args = parser.parse_args()
+        code = Shore(args.file.read()).generate_code()
         open("ir.cpp", "w").write(code)
         pwd = os.path.dirname(os.path.abspath(__file__))
         loc = os.path.join(pwd, "runtime")
-        ret = subprocess.call([
+        cmdline_args = [
             "g++",
             "-g",
             "-Wall",
             "ir.cpp",
             os.path.join(pwd, "runtime", "gc.cpp"),
-            "-I%s" % loc
-        ])
+            "-I%s" % loc,
+        ]
+        if args.S:
+            cmdline_args.append("-S")
+        cmdline_args.append("-o%s" % args.o)
+        ret = subprocess.call(cmdline_args)
+        if not args.dont_remove:
+            os.remove("ir.cpp")
 
 if __name__ == "__main__":
-    Main(sys.argv).main()
+    Main().main()
