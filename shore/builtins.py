@@ -1,16 +1,45 @@
 """
 Definitions for various builtins.
 """
+from shore.utils import CompileError
 
 
 RECURSIVE_TYPE_CONSTANT = "self"
 
-
-class Function(object):
-    def __init__(self, return_type, arguments, name=None):
+class Signature(object):
+    def __init__(self, return_type, arguments):
         self.return_type = return_type
         self.arguments = arguments
+    
+    def bind(self, cls):
+        if self.return_type == RECURSIVE_TYPE_CONSTANT:
+            self.return_type = cls
+        for i, argument in enumerate(self.arguments):
+            self.arguments[i] = (argument[0], cls, argument[2])
+    
+    def matches(self, arguments):
+        # TODO: Default args.
+        if len(self.arguments) != len(arguments):
+            return False
+        for expected, received in zip(self.arguments, arguments):
+            if expected[1] is not received[1]:
+                return False
+        return True
+    
+
+class Function(object):
+    def __init__(self, signatures, name=None):
+        self.signatures = signatures
         self.name = name
+    
+    def matches(self, arguments):
+        return any(signature.matches(arguments) for signature in self.signatures)
+
+    def get_matching_signature(self, arguments):
+        for signature in self.signatures:
+            if signature.matches(arguments):
+                return signature
+        raise CompileError("No matching signature.")
     
     def bind_to_module(self, module):
         pass
@@ -33,11 +62,8 @@ class BuiltinTypeMetaclass(type):
         new_cls = super(BuiltinTypeMetaclass, cls).__new__(cls, name, bases, attrs)
         new_cls.functions = {}
         for name, function in functions.iteritems():
-            if function.return_type == RECURSIVE_TYPE_CONSTANT:
-                function.return_type = new_cls
-            for i, argument in enumerate(function.arguments):
-                if argument[1] == RECURSIVE_TYPE_CONSTANT:
-                    function.arguments[i] = (argument[0], new_cls, argument[2])
+            for signature in function.signatures:
+                signature.bind(new_cls)
             new_cls.functions[name] = function
         return new_cls
 
@@ -64,13 +90,25 @@ class Boolean(Builtin):
 class Integer(Builtin):
     class_name = "shore::builtin__int"
     
-    __eq__ = Function(Boolean, [(None, "self", None), (None, "self", None)])
-    __add__ = Function("self", [(None, "self", None), (None, "self", None)])
-    __sub__ = Function("self", [(None, "self", None), (None, "self", None)])
-    __mul__ = Function("self", [(None, "self", None), (None, "self", None)])
+    __eq__ = Function([
+        Signature(Boolean, [(None, "self", None), (None, "self", None)])
+    ])
+    __add__ = Function([
+        Signature("self", [(None, "self", None), (None, "self", None)])
+    ])
+    __sub__ = Function([
+        Signature("self", [(None, "self", None), (None, "self", None)])
+    ])
+    __mul__ = Function([
+        Signature("self", [(None, "self", None), (None, "self", None)])
+    ])
 
 
 class String(Builtin):
-    pass
+    class_name = "shore::builtin__str"
 
-Print = Function(String, [(None, Integer, None)], name="builtin__print")
+
+Print = Function([
+    Signature(None, [(None, Integer, None)]),
+    Signature(None, [(None, String, None)]),
+], name="builtin__print")

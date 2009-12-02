@@ -1,4 +1,4 @@
-from shore.builtins import Integer
+from shore.builtins import Integer, String
 from shore.context import Context
 from shore.utils import CompileError
 
@@ -85,6 +85,12 @@ class BooleanNode(BaseNode):
 class StringNode(BaseNode):
     attrs = ["value"]
     needs_bind_to_module = []
+    
+    def type(self, context):
+        return String
+    
+    def generate_code(self):
+        return "shore::builtin__str::new_instance(\"%s\")" % self.value
 
 class IntegerNode(BaseNode):
     attrs = ["value"]
@@ -118,16 +124,22 @@ class BinOpNode(BaseNode):
         "^": "__xor__",
     }
     
-    def get_func(self, context):
+    def get_func(self, context, signature=False):
         left_type, right_type = self.left.type(context), self.right.type(context)
         method = self.method_names[self.op]
         reverse_method = "__r%s__" % method.split("__")[1]
         if method in left_type.functions:
-            if left_type.functions[method].arguments[1][1] is right_type:
-                return left_type.functions[method]
+            if left_type.functions[method].matches([(None, left_type), (None, right_type)]):
+                if signature:
+                    return left_type.functions[method].get_matching_signature([(None, left_type), (None, right_type)])
+                else:
+                    return left_type.functions[method]
         if reverse_method in right_type.functions:
             if right_type.functions[reverse_method].arguments[1][1] is left_type:
-                return right_type.functions[method]
+                if signature:
+                    return right_type.functins[reverse].get_matching_signature([(None, right_type), (None, left_type)])
+                else:
+                    return right_type.functions[reverse_method]
         raise CompileError("Can't do %s on %s, %s" % (self.op, left_type, right_type))
     
     def verify(self, context):
@@ -136,7 +148,7 @@ class BinOpNode(BaseNode):
         self.get_func(context)
     
     def type(self, context):
-        return self.get_func(context).return_type
+        return self.get_func(context, signature=True).return_type
     
     def generate_code(self):
         # TODO: doesn't handle the reverse case
@@ -163,9 +175,7 @@ class CompNode(BaseNode):
         method = self.method_names[self.op]
         if method not in left_type.functions:
             raise CompileError("Can't do %s on %s" % (self.op, self.left_type))
-        if left_type.functions[method].arguments[1][1] is not right_type:
-            raise CompileError("Can't do %s on types %s, %s" % (self.op,
-                left_type, right_type))
+        left_type.functions[method].get_matching_signature([(None, left_type), (None, right_type)])
     
     def generate_code(self):
         return "(%s)->%s(%s)" % (self.left.generate_code(), self.method_names[self.op], self.right.generate_code())
@@ -295,6 +305,16 @@ class FunctionNode(BaseNode):
         
         self.body.verify(context)
     
+    def matches(self, arguments):
+        # TODO: Default args.
+        if len(self.arguments) != len(arguments):
+            return False
+        for expected, received in zip(self.arguments, arguments):
+            if expected[1].value is not received[1]:
+                return False
+        return True
+
+    
     def get_locals(self):
         variables = dict([(name, type.value) for name, type, default in self.arguments])
         variables.update(self.body.get_locals())
@@ -377,16 +397,8 @@ class CallNode(BaseNode):
         self.function = module.functions[self.function.name]
     
     def verify(self, context):
-        # TODO: Doens't handle named, or default arguments
-        args = self.function.arguments
-        if len(args) != len(self.arguments):
-            raise CompileError("Argument count mismatch, %s expected, received %s" %
-                (len(args), len(self.arguments)))
-        for expected_arg, provided_arg in zip(args, self.arguments):
-            expected_type = expected_arg[1].value if hasattr(expected_arg[1], "value") else expected_arg[1]
-            if expected_type is not provided_arg[1].type(context):
-                raise CompileError("Argument type mismatch, %s expected, recieved %s" %
-                    (expected_type, provided_arg[1].type(context)))
+        if not self.function.matches([(name, node.type(context)) for name, node in self.arguments]):
+            raise CompileError("Argument mismatch")
     
     def type(self, context):
         return self.function.return_type
