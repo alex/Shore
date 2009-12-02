@@ -15,7 +15,8 @@ class Signature(object):
         if self.return_type == RECURSIVE_TYPE_CONSTANT:
             self.return_type = cls
         for i, argument in enumerate(self.arguments):
-            self.arguments[i] = (argument[0], cls, argument[2])
+            if argument[1] == RECURSIVE_TYPE_CONSTANT:
+                self.arguments[i] = (argument[0], cls, argument[2])
     
     def matches(self, arguments):
         # TODO: Default args.
@@ -106,6 +107,10 @@ class Integer(Builtin):
 
 class String(Builtin):
     class_name = "shore::builtin__str"
+    
+    __mul__ = Function([
+        Signature("self", [(None, "self", None), (None, Integer, None)]),
+    ])
 
 
 Print = Function([
