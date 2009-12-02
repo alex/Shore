@@ -355,11 +355,14 @@ class ParserTest(unittest.TestCase):
             "int r = 3",
             "",
             "",
-            "int c = r - 3",
+            "while True:",
+            "    pass",
         ]
         self.assert_parses(data, [
             ("DeclarationNode", ("NameNode", "int"), "r", ("IntegerNode", "3")),
-            ("DeclarationNode", ("NameNode", "int"), "c", ("BinOpNode", ("NameNode", "r"), ("IntegerNode", "3"), "-")),
+            ("WhileNode", ("BooleanNode", True), [
+                ("PassNode",),
+            ])
         ])
 
 
