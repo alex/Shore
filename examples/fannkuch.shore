@@ -1,0 +1,50 @@
+int def fannkuch(int n):
+    list{int} count = range(1, n+1)
+    int max_flips = 0
+    int m = n - 1
+    int r = n
+    int check = 0
+    list{int} perm1 = range(n)
+    list{int} perm = range(n)
+    
+    while True:
+        if check < 30:
+            #print("".join([str(i+1) for i in perm1)])
+            check = check + 1
+        
+        while r != 1:
+            count[r-1] = r
+            r -= 1
+        
+        if perm1[0] != 0 and perm1[m] != m:
+            perm = perm1[:]
+            flips_count = 0
+            int k = perm[0]
+            while k:
+                #perm[:k+1] = perm[k::-1]
+                flips_count = flips_count + 1
+                k = perm[0]
+            
+            if flips_count > max_flips:
+                max_flips = flips_count
+        
+        bool broke = False
+        while r != n:
+            #perm1.insert(r, perm1.pop(0))
+            count[r] = count[r] - 1
+            if count[r] > 0:
+                broke = True
+                break
+            r = r + 1
+        if not broke:
+            return max_flips
+    
+
+def main(list{str} args):
+    int n = None
+    if args:
+        n = int(args[1])
+    else:
+        n = 1
+    print("Pfannkuchen(%s) = %s" % (n, fannkuch(n)))
+

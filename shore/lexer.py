@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 
-Symbol = namedtuple("Symbol", ["name", "value"])
+Symbol = namedtuple("Symbol", ["name", "value", "lineno"])
 
 
 def token_processor(func):
@@ -21,11 +21,11 @@ def track_indents(tokens):
         elif len(token.value) > levels[-1]:
             indents = (len(token.value) - levels[-1]) / 4
             levels.append(len(token.value))
-            return [Symbol("INDENT", "") for i in xrange(indents)]
+            return [Symbol("INDENT", "", token.lineno) for i in xrange(indents)]
         elif len(token.value) < levels[-1]:
             dedents = (levels[-1] - len(token.value)) / 4
             levels.append(len(token.value))
-            return [Symbol("DEDENT", "") for i in xrange(dedents)]
+            return [Symbol("DEDENT", "", token.lineno) for i in xrange(dedents)]
     for token in tokens:
         if token.name == "NEWLINE":
             yield token
@@ -36,14 +36,14 @@ def track_indents(tokens):
                     yield token
             else:
                 for i in xrange(levels[-1] / 4):
-                    yield Symbol("DEDENT", "")
+                    yield Symbol("DEDENT", "", token.lineno)
                 levels.append(0)
                 yield next
         else:
             yield token
-    yield Symbol("NEWLINE", "\n")
+    yield Symbol("NEWLINE", "\n", token.lineno)
     for i in xrange(levels[-1] / 4):
-        yield Symbol("DEDENT", "")
+        yield Symbol("DEDENT", "", token.lineno)
 
 
 @token_processor
@@ -52,7 +52,7 @@ def combine_is_not(tokens):
         if token.name == "IS":
             next = tokens.next()
             if next.name == "NOT":
-                yield Symbol("ISNOT", "is not")
+                yield Symbol("ISNOT", "is not", token.lineno)
             else:
                 yield token
                 yield next
@@ -117,6 +117,7 @@ class Lexer(object):
         index = 0
         self.state = None
         self.current_val = []
+        self.lineno = 1
         
         while index < len(self.text):
             ch = self.text[index]
@@ -146,12 +147,12 @@ class Lexer(object):
         name = "".join(self.current_val)
         self.current_val = []
         if name in self.keywords:
-            return Symbol(name.upper(), name)
-        return Symbol("NAME", name)
+            return Symbol(name.upper(), name, self.lineno)
+        return Symbol("NAME", name, self.lineno)
     
     def string(self, ch):
         if ch == '"':
-            sym = Symbol("STRING", "".join(self.current_val))
+            sym = Symbol("STRING", "".join(self.current_val), self.lineno)
             self.current_val = []
             self.state = None
             return sym
@@ -176,7 +177,7 @@ class Lexer(object):
         if ch in self.numbers:
             self.current_val.append(ch)
         else:
-            sym = Symbol("NUMBER", "".join(self.current_val))
+            sym = Symbol("NUMBER", "".join(self.current_val), self.lineno)
             self.current_val = []
             self.state = None
             return [sym, self.generic(ch)]
@@ -186,7 +187,7 @@ class Lexer(object):
             self.current_val.append(" ")
         else:
             if self.current_val:
-                sym = Symbol("WHITESPACE", "".join(self.current_val))
+                sym = Symbol("WHITESPACE", "".join(self.current_val), self.lineno)
                 self.state = None
                 self.current_val = []
                 return [sym, self.generic(ch)]
@@ -196,11 +197,17 @@ class Lexer(object):
         old_ch = self.current_val.pop()
         val = old_ch + ch
         if val in self.symbols:
-            sym = Symbol(self.symbols[val].upper(), val)
+            sym = Symbol(self.symbols[val].upper(), val, self.lineno)
             self.state = None
             return sym
         self.state = None
-        return [Symbol(self.symbols[old_ch].upper(), old_ch), self.generic(ch)]
+        return [Symbol(self.symbols[old_ch].upper(), old_ch, self.lineno), self.generic(ch)]
+    
+    def comment(self, ch):
+        if ch != "\n":
+            return
+        self.state = None
+        return self.generic(ch)
     
     def generic(self, ch):
         if ch == '"':
@@ -215,12 +222,16 @@ class Lexer(object):
             return
         elif ch == "\n":
             self.state = "newline"
-            return Symbol("NEWLINE", "\n")
+            self.lineno += 1
+            return Symbol("NEWLINE", "\n", self.lineno)
+        elif ch == "#":
+            self.state = "comment"
+            return
         else:
             if ch in self.long_symbols:
                 self.state = "long_symbol"
                 self.current_val.append(ch)
                 return
             if ch in self.symbols:
-                return Symbol(self.symbols[ch].upper(), ch)
+                return Symbol(self.symbols[ch].upper(), ch, self.lineno)
             raise ValueError("%s couldn't be parsed" % ch)

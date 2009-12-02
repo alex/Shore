@@ -16,13 +16,13 @@ from shore.utils import PLYCompatLexer
 class Shore(object):
     def __init__(self, source):
         self.source = source
-    
+
     def tokenize(self):
         return Lexer(self.source).tokenize()
-    
+
     def parse(self):
         return Parser(PLYCompatLexer(self.tokenize())).parse()
-    
+
     def to_module(self):
         m = Module("__main__")
         m.add_builtins({
@@ -33,7 +33,7 @@ class Shore(object):
         })
         m.from_ast(self.parse())
         return m
-    
+
     def generate_code(self):
         return self.to_module().generate_code()
 
@@ -46,9 +46,17 @@ class Main(object):
             help="Output the assembley, instead of the executable.")
         parser.add_argument("--dont-remove", action="store_true", default=False,
             help="Don't delete the IR (C++) after compiling.")
-        
+        parser.add_argument("--parse", action="store_true", default=False,
+            help="Only parse the file to an AST (and print the AST to stdout).")
+
         args = parser.parse_args()
-        code = Shore(args.file.read()).generate_code()
+        shore = Shore(args.file.read())
+        if args.parse:
+#            print "\n".join(map(str, shore.tokenize()))
+            print shore.parse()
+            return
+
+        code = shore.generate_code()
         open("ir.cpp", "w").write(code)
         pwd = os.path.dirname(os.path.abspath(__file__))
         loc = os.path.join(pwd, "runtime")

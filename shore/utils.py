@@ -16,11 +16,11 @@ class PLYCompatToken(object):
     def __init__(self, token):
         self.type = token.name
         self.value = token.value
-        self.lineno = None
+        self.lineno = token.lineno
         self.lexpos = None
     
     def __repr__(self):
-        return "<Token: %r %r>" % (self.type, self.value)
+        return "<Token: %r %r, line=%r>" % (self.type, self.value, self.lineno)
 
 
 class CompileError(ValueError):
