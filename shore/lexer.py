@@ -1,7 +1,9 @@
 from collections import namedtuple
 
 
-Symbol = namedtuple("Symbol", ["name", "value", "lineno"])
+class Symbol(namedtuple("Symbol", ["name", "value", "lineno"])):
+    def __eq__(self, other):
+        return self[:-1] == other
 
 
 def token_processor(func):
@@ -136,12 +138,12 @@ class Lexer(object):
                         yield result
 
         if self.state == "number":
-            yield Symbol("NUMBER", "".join(self.current_val))
+            yield Symbol("NUMBER", "".join(self.current_val), self.lineno)
         elif self.state == "name":
             yield self.emit_name()
         elif self.state == "long_symbol":
             ch = self.current_val.pop()
-            yield Symbol(self.symbols[ch].upper(), ch)
+            yield Symbol(self.symbols[ch].upper(), ch, self.lineno)
             
     def emit_name(self):
         name = "".join(self.current_val)

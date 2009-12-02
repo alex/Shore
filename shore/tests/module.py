@@ -21,7 +21,6 @@ class ModuleTest(unittest.TestCase):
             "    print(factorial(13))",
         ]
         m = self.generate_code(source)
-        print m
 
 
 if __name__ == "__main__":

@@ -351,6 +351,16 @@ class ParserTest(unittest.TestCase):
                 ("ReturnNode", ("BinOpNode", ("CallNode", ("NameNode", "factorial"), [(None, ("BinOpNode", ("NameNode", "n"), ("IntegerNode", "1"), "-"))]), ("CallNode", ("NameNode", "factorial"), [(None, ("BinOpNode", ("NameNode", "n"), ("IntegerNode", "2"), "-"))]), "+")),
             ])
         ])
+        data = [
+            "int r = 3",
+            "",
+            "",
+            "int c = r - 3",
+        ]
+        self.assert_parses(data, [
+            ("DeclarationNode", ("NameNode", "int"), "r", ("IntegerNode", "3")),
+            ("DeclarationNode", ("NameNode", "int"), "c", ("BinOpNode", ("NameNode", "r"), ("IntegerNode", "3"), "-")),
+        ])
 
 
 
