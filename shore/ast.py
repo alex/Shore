@@ -43,6 +43,7 @@ class NodeList(object):
     
     def __repr__(self):
         return "[%s]" % ", ".join(map(repr, self.nodes))
+
     
     def __eq__(self, other):
         if isinstance(other, NodeList):

@@ -23,7 +23,7 @@ class Parser(object):
         ("right", "STARSTAR"),
     )
 
-    debug = False
+    debug = True
 
     def __init__(self, tokens):
         self.token_stream = tokens
@@ -38,21 +38,9 @@ class Parser(object):
 
     def p_input(self, t):
         """
-        input : NEWLINE
-              | statement
-              | input NEWLINE
-              | input statement
+        input : statements
         """
-        if len(t) == 2:
-            if t[1] == "\n":
-                t[0] = ast.NodeList([])
-            else:
-                t[0] = ast.NodeList([t[1]])
-        else:
-            if t[2] == "\n":
-                t[0] = t[1]
-            else:
-                t[0] = ast.NodeList(t[1].nodes + [t[2]])
+        t[0] = t[1]
 
     def p_statement(self, t):
         """
@@ -402,11 +390,15 @@ class Parser(object):
         """
         statements : statement
                    | statements statement
+                   | statements NEWLINE
         """
         if len(t) == 2:
             t[0] = [t[1]]
         else:
-            t[0] = t[1] + [t[2]]
+            if t[2] == "\n":
+                t[0] = t[1]
+            else:
+                t[0] = t[1] + [t[2]]
 
     def p_function_definition(self, t):
         """
