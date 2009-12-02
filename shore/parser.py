@@ -389,11 +389,15 @@ class Parser(object):
     def p_statements(self, t):
         """
         statements : statement
+                   | NEWLINE
                    | statements statement
                    | statements NEWLINE
         """
         if len(t) == 2:
-            t[0] = [t[1]]
+            if t[1] == "\n":
+                t[0] = []
+            else:
+                t[0] = [t[1]]
         else:
             if t[2] == "\n":
                 t[0] = t[1]
