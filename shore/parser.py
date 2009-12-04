@@ -40,7 +40,7 @@ class Parser(object):
         """
         input : statements
         """
-        t[0] = t[1]
+        t[0] = ast.NodeList(t[1])
 
     def p_statement(self, t):
         """

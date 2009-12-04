@@ -414,3 +414,6 @@ class AttributeNode(BaseNode):
 
 class BreakNode(BaseNode):
     attrs = []
+
+class SliceNode(BaseNode):
+    attrs = ["start", "stop", "step"]
