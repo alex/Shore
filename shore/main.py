@@ -6,7 +6,7 @@ import sys
 
 import argparse
 
-from shore.builtins import Integer, Boolean, Print
+from shore.builtins import Integer, Boolean, String, List, Print, Range
 from shore.lexer import Lexer
 from shore.module import Module
 from shore.parser import Parser
@@ -28,8 +28,11 @@ class Shore(object):
         m.add_builtins({
             "bool": Boolean,
             "int": Integer,
+            "str": String,
+            "list": List
         }, {
-            "print": Print
+            "print": Print,
+            "range": Range,
         })
         m.from_ast(self.parse())
         return m

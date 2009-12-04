@@ -78,6 +78,12 @@ class NodeList(object):
 class NoneNode(BaseNode):
     attrs = []
     needs_bind_to_module = []
+    
+    def verify(self, context):
+        pass
+    
+    def type(self, context):
+        return None
 
 class BooleanNode(BaseNode):
     attrs = ["value"]
@@ -233,6 +239,10 @@ class SubscriptNode(BaseNode):
 class TemplateNode(BaseNode):
     attrs = ["type", "parameters"]
     needs_bind_to_module = ["type", "parameters"]
+    
+    def bind_to_module(self, module):
+        super(TemplateNode, self).bind_to_module(module)
+        self.value = self.type.value(*[param.value for param in self.parameters])
 
 class AssignmentNode(BaseNode):
     attrs = ["name", "value"]
@@ -281,7 +291,7 @@ class IfNode(BaseNode):
 
 class WhileNode(BaseNode):
     attrs = ["condition", "body"]
-    needs_bind_to_module = ["condtion", "body"]
+    needs_bind_to_module = ["condition", "body"]
 
 class ForNode(BaseNode):
     attrs = ["name", "value", "body"]
@@ -395,7 +405,10 @@ class CallNode(BaseNode):
     
     def bind_to_module(self, module):
         super(CallNode, self).bind_to_module(module)
-        self.function = module.functions[self.function.name]
+        if self.function.name in module.functions:
+            self.function = module.functions[self.function.name]
+        else:
+            self.function = module.classes[self.function.name]
     
     def verify(self, context):
         if not self.function.matches([(name, node.type(context)) for name, node in self.arguments]):

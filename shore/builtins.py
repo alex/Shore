@@ -11,12 +11,12 @@ class Signature(object):
         self.return_type = return_type
         self.arguments = arguments
     
-    def bind(self, cls):
-        if self.return_type == RECURSIVE_TYPE_CONSTANT:
-            self.return_type = cls
+    def bind(self, substitutions):
+        if self.return_type in substitutions:
+            self.return_type = substitutions[self.return_type]
         for i, argument in enumerate(self.arguments):
-            if argument[1] == RECURSIVE_TYPE_CONSTANT:
-                self.arguments[i] = (argument[0], cls, argument[2])
+            if argument[1] in substitutions:
+                self.arguments[i] = (argument[0], substitutions[argument[1]], argument[2])
     
     def matches(self, arguments):
         # TODO: Default args.
@@ -64,7 +64,7 @@ class BuiltinTypeMetaclass(type):
         new_cls.functions = {}
         for name, function in functions.iteritems():
             for signature in function.signatures:
-                signature.bind(new_cls)
+                signature.bind({RECURSIVE_TYPE_CONSTANT: new_cls})
             new_cls.functions[name] = function
         return new_cls
 
@@ -72,17 +72,32 @@ class BuiltinTypeMetaclass(type):
 class Builtin(object):
     __metaclass__ = BuiltinTypeMetaclass
 
-    @classmethod
-    def bind_to_module(cls, module):
+    @staticmethod
+    def bind_to_module(module):
         pass
     
-    @classmethod
-    def verify(cls):
+    @staticmethod
+    def verify():
         pass
     
-    @classmethod
-    def generate_code(self):
+    @staticmethod
+    def generate_code():
         return []
+
+
+class Template(Builtin):
+    templated_over = []
+    
+    def __init__(self, *types):
+        self.templates = dict(zip(self.templated_over, types))
+        for function in self.functions.values():
+            for signature in function.signatures:
+                signature.bind(self.templates)
+
+class List(Template):
+    templated_over = ["T"]
+    
+    
 
 
 class Boolean(Builtin):
@@ -117,3 +132,9 @@ Print = Function([
     Signature(None, [(None, Integer, None)]),
     Signature(None, [(None, String, None)]),
 ], name="builtin__print")
+
+Range = Function([
+    Signature(List(Integer), [(None, Integer, None)]),
+    Signature(List(Integer), [(None, Integer, None), (None, Integer, None)]),
+    Signature(List(Integer), [(None, Integer, None), (None, Integer, None), (None, Integer, None)]),
+], name="builtin__range")
