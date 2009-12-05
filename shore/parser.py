@@ -92,11 +92,16 @@ class Parser(object):
                    | expression AMPER expression
                    | expression CIRCUMFLEX expression
                    | expression PERCENT expression
-                   | expression AND expression
-                   | expression OR expression
                    | expression STARSTAR expression
         """
         t[0] = ast.BinOpNode(t[1], t[3], t[2])
+    
+    def p_expression_bool_comp(self, t):
+        """
+        expression : expression AND expression
+                   | expression OR expression
+        """
+        t[0] = ast.BooleanCompNode(t[1], t[3], t[2])
 
     def p_expression_comp(self, t):
         """

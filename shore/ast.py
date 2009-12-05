@@ -1,4 +1,4 @@
-from shore.builtins import Integer, String
+from shore.builtins import Integer, String, Boolean
 from shore.context import Context
 from shore.utils import CompileError
 
@@ -193,6 +193,13 @@ class CompNode(BaseNode):
     def generate_code(self):
         return "(%s)->%s(%s)" % (self.left.generate_code(), self.method_names[self.op], self.right.generate_code())
 
+class BooleanCompNode(BaseNode):
+    attrs = ["left", "right", "op"]
+    needs_bind_to_module = ["left", "right"]
+    
+    def type(self, context):
+        return Boolean
+
 class ContainsNode(BaseNode):
     attrs = ["obj", "seq"]
     needs_bind_to_module = ["obj", "seq"]
@@ -250,6 +257,8 @@ class SubscriptNode(BaseNode):
         ]).return_type
     
     def verify(self, context):
+        if "__getitem__" not in  self.value.type(context).functions:
+            raise CompileError("Can't subscript %s" % self.value.type(context))
         if not self.value.type(context).functions["__getitem__"].matches([
             (None, self.value.type(context)),
             (None, self.index.type(context)),

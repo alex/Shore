@@ -29,14 +29,21 @@ class ParserTest(unittest.TestCase):
             "True or False",
         ]
         self.assert_parses(data, [
-            ("BinOpNode", ("BooleanNode", True), ("BooleanNode", False), "or"),
+            ("BooleanCompNode", ("BooleanNode", True), ("BooleanNode", False), "or"),
         ])
         
         data = [
             "True or False and True",
         ]
         self.assert_parses(data, [
-            ("BinOpNode", ("BinOpNode", ("BooleanNode", True), ("BooleanNode", False), "or"), ("BooleanNode", True), "and"),
+            ("BooleanCompNode", ("BooleanCompNode", ("BooleanNode", True), ("BooleanNode", False), "or"), ("BooleanNode", True), "and"),
+        ])
+        
+        data = [
+            "a and a[b]",
+        ]
+        self.assert_parses(data, [
+            ("BooleanCompNode", ("NameNode", "a"), ("SubscriptNode", ("NameNode", "a"), ("NameNode", "b")), "and"),
         ])
         
         data = [
