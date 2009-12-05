@@ -22,12 +22,12 @@ namespace shore {
             }
             
             builtin__str* __mul__(shore::builtin__int* other) {
-                shore::builtin__str* s = builtin__str::new_instance("");
-                s->value.reserve(this->value.size() * other->value);
+                std::string s;
+                s.reserve(this->value.size() * other->value);
                 for (int i = 0; i < other->value; i++) {
-                    s->value.append(this->value);
+                    s.append(this->value);
                 }
-                return s;
+                return shore::builtin__str::new_instance(s);
             }
     };
 }

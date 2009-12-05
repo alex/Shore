@@ -23,7 +23,7 @@ class Parser(object):
         ("right", "STARSTAR"),
     )
 
-    debug = True
+    debug = False
 
     def __init__(self, tokens):
         self.token_stream = tokens
