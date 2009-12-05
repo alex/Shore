@@ -88,6 +88,9 @@ class NoneNode(BaseNode):
 class BooleanNode(BaseNode):
     attrs = ["value"]
     needs_bind_to_module = []
+    
+    def verify(self, context):
+        pass
 
 class StringNode(BaseNode):
     attrs = ["value"]
@@ -181,7 +184,7 @@ class CompNode(BaseNode):
         left_type, right_type = self.left.type(context), self.right.type(context)
         method = self.method_names[self.op]
         if method not in left_type.functions:
-            raise CompileError("Can't do %s on %s" % (self.op, self.left_type))
+            raise CompileError("Can't do %s on %s" % (self.op, left_type))
         left_type.functions[method].get_matching_signature([(None, left_type), (None, right_type)])
     
     def generate_code(self):
@@ -304,6 +307,10 @@ class IfNode(BaseNode):
 class WhileNode(BaseNode):
     attrs = ["condition", "body"]
     needs_bind_to_module = ["condition", "body"]
+    
+    def verify(self, context):
+        self.condition.verify(context)
+        self.body.verify(context)
 
 class ForNode(BaseNode):
     attrs = ["name", "value", "body"]
@@ -337,6 +344,8 @@ class FunctionNode(BaseNode):
                 return False
         return True
 
+    def returns(self, arguments):
+        return self.return_type
     
     def get_locals(self):
         variables = dict([(name, type.value) for name, type, default in self.arguments])
@@ -427,7 +436,7 @@ class CallNode(BaseNode):
             raise CompileError("Argument mismatch")
     
     def type(self, context):
-        return self.function.return_type
+        return self.function.returns([(name, node.type(context)) for name, node in self.arguments])
     
     def generate_code(self):
         # TODO: named args

@@ -1,6 +1,8 @@
 """
 Definitions for various builtins.
 """
+from copy import deepcopy
+
 from shore.utils import CompileError
 
 
@@ -10,6 +12,9 @@ class Signature(object):
     def __init__(self, return_type, arguments):
         self.return_type = return_type
         self.arguments = arguments
+    
+    def __repr__(self):
+        return "<Signature: return=%s arguments=%s>" % (self.return_type, self.arguments)
     
     def bind(self, substitutions):
         if self.return_type in substitutions:
@@ -23,7 +28,7 @@ class Signature(object):
         if len(self.arguments) != len(arguments):
             return False
         for expected, received in zip(self.arguments, arguments):
-            if expected[1] is not received[1]:
+            if not expected[1].compatible(received[1]):
                 return False
         return True
     
@@ -41,6 +46,9 @@ class Function(object):
             if signature.matches(arguments):
                 return signature
         raise CompileError("No matching signature.")
+
+    def returns(self, arguments):
+        return self.get_matching_signature(arguments).return_type
     
     def bind_to_module(self, module):
         pass
@@ -68,11 +76,11 @@ class BuiltinTypeMetaclass(type):
             for signature in function.signatures:
                 signature.bind({RECURSIVE_TYPE_CONSTANT: new_cls})
             new_cls.functions[name] = function
-        cls._type_cache[name] = new_cls
+        cls._type_cache[new_cls.__name__] = new_cls
         for type in cls._type_cache.itervalues():
             for function in type.functions.itervalues():
                 for signature in function.signatures:
-                    signature.bind({name: new_cls})
+                    signature.bind({new_cls.__name__: new_cls})
         return new_cls
 
 
@@ -98,17 +106,35 @@ class Builtin(object):
     
     @classmethod
     def matches(cls, arguments):
-        return self.functions["__new__"].matches(arguments)
+        return cls.functions["__new__"].matches(arguments)
+    
+    @classmethod
+    def returns(cls, arguments):
+        return cls
 
 
 class Template(Builtin):
     templated_over = []
     
     def __init__(self, *types):
+        self.functions = deepcopy(self.functions)
         self.templates = dict(zip(self.templated_over, types))
+        templated = {}
+        for t in self.templates:
+            templated["%s(%s)" % (RECURSIVE_TYPE_CONSTANT, ", ".join(self.templated_over))] = (
+                self
+            )
         for function in self.functions.values():
             for signature in function.signatures:
                 signature.bind(self.templates)
+                signature.bind(templated)
+
+    def compatible(self, type):
+        # TODO: subclasses
+        return type is None or (self.__class__ == type.__class__ and
+            all(self.templates[k].compatible(type.templates[k]) for k in
+                self.templated_over)
+            )
 
 
 class List(Template):
@@ -116,7 +142,7 @@ class List(Template):
     templated_over = ["T"]
     
     __getitem__ = Function([
-        Signature("T", [(None, "self", None), (None, "Integer", None),])
+        Signature("T", [(None, "self(T)", None), (None, "Integer", None),])
     ])
 
 
@@ -130,9 +156,17 @@ class Integer(Builtin):
         Signature("self", [(None, "self", None)]),
         Signature("self", [(None, "String", None)]),
     ])
+
     __eq__ = Function([
         Signature(Boolean, [(None, "self", None), (None, "self", None)])
     ])
+    __ne__ = Function([
+        Signature(Boolean, [(None, "self", None), (None, "self", None)])
+    ])
+    __lt__ = Function([
+        Signature("self", [(None, "self", None), (None, "self", None)])
+    ])
+    
     __add__ = Function([
         Signature("self", [(None, "self", None), (None, "self", None)])
     ])
@@ -147,6 +181,9 @@ class Integer(Builtin):
 class String(Builtin):
     class_name = "shore::builtin__str"
     
+    __add__ = Function([
+        Signature("self", [(None, "self", None), (None, "self", None)])
+    ])
     __mul__ = Function([
         Signature("self", [(None, "self", None), (None, Integer, None)]),
     ])
