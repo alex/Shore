@@ -223,7 +223,7 @@ class DeclarationNode(BaseNode):
     def verify(self, context):
         context[self.name] = self.type.value
         self.value.verify(context)
-        if self.value.type(context) is not self.type.value:
+        if not self.type.value.compatible(self.value.type(context)):
             raise CompileError("%s RHS doesn't match type." % (self.name))
     
     def get_locals(self):
@@ -247,6 +247,11 @@ class TemplateNode(BaseNode):
 class AssignmentNode(BaseNode):
     attrs = ["name", "value"]
     needs_bind_to_module = ["value"]
+    
+    def verify(self, context):
+        self.value.verify(context)
+        if not context[self.name].compatible(self.value.type(context)):
+            raise CompileError("%s RHS doesn't match type." % (self.name))
 
 class ItemAssignmentNode(BaseNode):
     attrs = ["lhs", "index", "value"]

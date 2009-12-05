@@ -83,6 +83,11 @@ class Builtin(object):
     @staticmethod
     def generate_code():
         return []
+    
+    @classmethod
+    def compatible(cls, type):
+        # TODO: subclasses
+        return type is None or type is cls
 
 
 class Template(Builtin):
