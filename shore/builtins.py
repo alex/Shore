@@ -144,6 +144,9 @@ class List(Template):
     __getitem__ = Function([
         Signature("T", [(None, "self(T)", None), (None, "Integer", None),])
     ])
+    __setitem__ = Function([
+        Signature(None, [(None, "self(T)", None), (None, "Integer", None), (None, "T", None)])
+    ])
 
 
 class Boolean(Builtin):

@@ -187,6 +187,9 @@ class CompNode(BaseNode):
             raise CompileError("Can't do %s on %s" % (self.op, left_type))
         left_type.functions[method].get_matching_signature([(None, left_type), (None, right_type)])
     
+    def type(self, context):
+        return self.left.type(context).functions[self.method_names[self.op]].get_matching_signature([(None, self.left.type(context)), (None, self.right.type(context))]).return_type
+    
     def generate_code(self):
         return "(%s)->%s(%s)" % (self.left.generate_code(), self.method_names[self.op], self.right.generate_code())
 
@@ -245,6 +248,13 @@ class SubscriptNode(BaseNode):
             (None, type),
             (None, self.index.type(context)),
         ]).return_type
+    
+    def verify(self, context):
+        if not self.value.type(context).functions["__getitem__"].matches([
+            (None, self.value.type(context)),
+            (None, self.index.type(context)),
+        ]):
+            raise CompileError("Can't do %s[%s]" % (self.value.type(context), self.index.type(context)))
 
 class TemplateNode(BaseNode):
     attrs = ["type", "parameters"]
@@ -266,6 +276,18 @@ class AssignmentNode(BaseNode):
 class ItemAssignmentNode(BaseNode):
     attrs = ["lhs", "index", "value"]
     needs_bind_to_module = ["lhs", "index", "value"]
+    
+    def verify(self, context):
+        self.lhs.verify(context)
+        self.index.verify(context)
+        self.value.verify(context)
+        
+        if not self.lhs.type(context).functions["__setitem__"].matches([
+            (None, self.lhs.type(context)),
+            (None, self.index.type(context)),
+            (None, self.value.type(context)),
+        ]):
+            raise CompileError("Can't do %s[%s] = %s" % (self.lhs.type(context), self.index.type(context), self.value.type(context)))
 
 class AttrAssignmentNode(BaseNode):
     attrs = ["lhs", "attr", "value"]
