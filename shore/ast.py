@@ -235,6 +235,13 @@ class DeclarationNode(BaseNode):
 class SubscriptNode(BaseNode):
     attrs = ["value", "index"]
     needs_bind_to_module = ["value", "index"]
+    
+    def type(self, context):
+        type = self.value.type(context)
+        return type.functions["__getitem__"].get_matching_signature([
+            (None, type),
+            (None, self.index.type(context)),
+        ]).return_type
 
 class TemplateNode(BaseNode):
     attrs = ["type", "parameters"]

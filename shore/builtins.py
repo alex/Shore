@@ -55,6 +55,8 @@ class Function(object):
         return []
 
 class BuiltinTypeMetaclass(type):
+    _type_cache = {}
+    
     def __new__(cls, name, bases, attrs):
         functions = dict([(n, attr) for n, attr in attrs.iteritems()
             if isinstance(attr, Function)])
@@ -66,6 +68,11 @@ class BuiltinTypeMetaclass(type):
             for signature in function.signatures:
                 signature.bind({RECURSIVE_TYPE_CONSTANT: new_cls})
             new_cls.functions[name] = function
+        cls._type_cache[name] = new_cls
+        for type in cls._type_cache.itervalues():
+            for function in type.functions.itervalues():
+                for signature in function.signatures:
+                    signature.bind({name: new_cls})
         return new_cls
 
 
@@ -88,6 +95,10 @@ class Builtin(object):
     def compatible(cls, type):
         # TODO: subclasses
         return type is None or type is cls
+    
+    @classmethod
+    def matches(cls, arguments):
+        return self.functions["__new__"].matches(arguments)
 
 
 class Template(Builtin):
@@ -99,10 +110,14 @@ class Template(Builtin):
             for signature in function.signatures:
                 signature.bind(self.templates)
 
+
 class List(Template):
+    class_name = "shore::builtin__list"
     templated_over = ["T"]
     
-    
+    __getitem__ = Function([
+        Signature("T", [(None, "self", None), (None, "Integer", None),])
+    ])
 
 
 class Boolean(Builtin):
@@ -111,6 +126,10 @@ class Boolean(Builtin):
 class Integer(Builtin):
     class_name = "shore::builtin__int"
     
+    __new__ = Function([
+        Signature("self", [(None, "self", None)]),
+        Signature("self", [(None, "String", None)]),
+    ])
     __eq__ = Function([
         Signature(Boolean, [(None, "self", None), (None, "self", None)])
     ])
