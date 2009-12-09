@@ -1,4 +1,4 @@
-from shore.builtins import Integer, String, Boolean
+from shore.builtins import Integer, String, Boolean, Slice
 from shore.context import Context
 from shore.utils import CompileError
 
@@ -84,6 +84,9 @@ class NoneNode(BaseNode):
     
     def type(self, context):
         return None
+    
+    def generate_code(self):
+        return "NULL"
 
 class BooleanNode(BaseNode):
     attrs = ["value"]
@@ -91,6 +94,12 @@ class BooleanNode(BaseNode):
     
     def verify(self, context):
         pass
+    
+    def type(self, context):
+        return Boolean
+    
+    def generate_code(self):
+        return "shore::builtin__bool::new_instance(%s)" % str(self.value).lower()
 
 class StringNode(BaseNode):
     attrs = ["value"]
@@ -197,8 +206,18 @@ class BooleanCompNode(BaseNode):
     attrs = ["left", "right", "op"]
     needs_bind_to_module = ["left", "right"]
     
+    def verify(self, context):
+        self.left.verify(context)
+        self.right.verify(context)
+    
     def type(self, context):
         return Boolean
+    
+    def generate_code(self):
+        if self.op == "and":
+            return "%s ? (%s ? shore::builtin__bool(true) : shore::builtin_bool(false)) : shore::builtin__bool(false)" % (self.left.generate_code(), self.right.generate_code())
+        else:
+            return "%s ? shore::builtin__bool(true) : (%s ? shore::builtin__bool(true) : shore::builtin__bool(false)" % (self.left.generate_code(), self.right.generate_code())
 
 class ContainsNode(BaseNode):
     attrs = ["obj", "seq"]
@@ -207,6 +226,19 @@ class ContainsNode(BaseNode):
 class UnaryOpNode(BaseNode):
     attrs = ["value", "op"]
     needs_bind_to_module = ["value"]
+    
+    def verify(self, context):
+        self.value.verify(context)
+        if self.op == "not":
+            return
+        # TODO: Handle other cases
+        raise Exception
+    
+    def generate_code(self):
+        if self.op == "not":
+            return "shore::builtin__bool::new_instance(!(%s)->value)" % self.value.generate_code()
+        # TODO: Handle other cases
+        raise Exception
 
 class NameNode(BaseNode):
     attrs = ["name"]
@@ -263,7 +295,12 @@ class SubscriptNode(BaseNode):
             (None, self.value.type(context)),
             (None, self.index.type(context)),
         ]):
-            raise CompileError("Can't do %s[%s]" % (self.value.type(context), self.index.type(context)))
+            raise CompileError("Can't do %s[%s]" % (
+                self.value.type(context), self.index.type(context)
+            ))
+    
+    def generate_code(self):
+        return "%s.__getitem__(%s)" % (self.value.generate_code(), self.index.generate_code())
 
 class TemplateNode(BaseNode):
     attrs = ["type", "parameters"]
@@ -279,8 +316,13 @@ class AssignmentNode(BaseNode):
     
     def verify(self, context):
         self.value.verify(context)
+        if self.name not in context:
+            raise CompileError("%s isn't declared." % self.name)
         if not context[self.name].compatible(self.value.type(context)):
             raise CompileError("%s RHS doesn't match type." % (self.name))
+    
+    def generate_code(self):
+        return "frame.%s = %s" % (self.name, self.value.generate_code())
 
 class ItemAssignmentNode(BaseNode):
     attrs = ["lhs", "index", "value"]
@@ -296,7 +338,14 @@ class ItemAssignmentNode(BaseNode):
             (None, self.index.type(context)),
             (None, self.value.type(context)),
         ]):
-            raise CompileError("Can't do %s[%s] = %s" % (self.lhs.type(context), self.index.type(context), self.value.type(context)))
+            raise CompileError("Can't do %s[%s] = %s" % (
+                self.lhs.type(context), self.index.type(context), self.value.type(context)
+            ))
+    
+    def generate_code(self):
+        return "%s->__setitem__(%s, %s)" % (
+            self.lhs.generate_code(), self.index.generate_code(), self.value.generate_code()
+        )
 
 class AttrAssignmentNode(BaseNode):
     attrs = ["lhs", "attr", "value"]
@@ -342,6 +391,11 @@ class WhileNode(BaseNode):
     def verify(self, context):
         self.condition.verify(context)
         self.body.verify(context)
+    
+    def generate_code(self):
+        code = ["while ((%s)->value) {" % self.condition.generate_code()]
+        code.extend(self.body.generate_code())
+        return code
 
 class ForNode(BaseNode):
     attrs = ["name", "value", "body"]
@@ -471,7 +525,11 @@ class CallNode(BaseNode):
     
     def generate_code(self):
         # TODO: named args
-        return "%s(%s)" % (self.function.name, ", ".join(arg.generate_code() for name, arg in self.arguments))
+        if hasattr(self.function, "class_name"):
+            func = "%s::new_instance" % self.function.class_name
+        else:
+            func = self.function.name
+        return "%s(%s)" % (func, ", ".join(arg.generate_code() for name, arg in self.arguments))
 
 class AttributeNode(BaseNode):
     attrs = ["value", "attribute"]
@@ -479,6 +537,23 @@ class AttributeNode(BaseNode):
 
 class BreakNode(BaseNode):
     attrs = []
+    
+    def verify(self, context):
+        pass
+    
+    def generate_code(self):
+        return "break"
 
 class SliceNode(BaseNode):
     attrs = ["start", "stop", "step"]
+    
+    def type(self, context):
+        return Slice
+    
+    def generate_code(self):
+        start = self.start.generate_code() if self.start is not None else "NULL"
+        stop = self.stop.generate_code() if self.stop is not None else "NULL"
+        step = self.step.generate_code() if self.step is not None else "NULL"
+        return "shore::builtin__slice::new_instance(%s, %s, %s)" % (
+            start, stop, step
+        )

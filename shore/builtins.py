@@ -142,10 +142,11 @@ class List(Template):
     templated_over = ["T"]
     
     __getitem__ = Function([
-        Signature("T", [(None, "self(T)", None), (None, "Integer", None),])
+        Signature("T", [(None, "self(T)", None), (None, "Integer", None),]),
+        Signature("self(T)", [(None, "self(T)", None), (None, "Slice", None)]),
     ])
     __setitem__ = Function([
-        Signature(None, [(None, "self(T)", None), (None, "Integer", None), (None, "T", None)])
+        Signature(None, [(None, "self(T)", None), (None, "Integer", None), (None, "T", None)]),
     ])
 
 
@@ -167,7 +168,10 @@ class Integer(Builtin):
         Signature(Boolean, [(None, "self", None), (None, "self", None)])
     ])
     __lt__ = Function([
-        Signature("self", [(None, "self", None), (None, "self", None)])
+        Signature(Boolean, [(None, "self", None), (None, "self", None)])
+    ])
+    __gt__ = Function([
+        Signature(Boolean, [(None, "self", None), (None, "self", None)]),
     ])
     
     __add__ = Function([
@@ -191,6 +195,12 @@ class String(Builtin):
         Signature("self", [(None, "self", None), (None, Integer, None)]),
     ])
 
+class Slice(Builtin):
+    class_name = "shore::builtin__slice"
+    
+    __new__ = Function([
+        Signature("self", [(None, "self", None), (None, Integer, None), (None, Integer, None)]),
+    ])
 
 Print = Function([
     Signature(None, [(None, Integer, None)]),

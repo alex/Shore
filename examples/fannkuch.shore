@@ -16,9 +16,9 @@ int def fannkuch(int n):
             count[r-1] = r
             r = r - 1
         
-        if perm1[0] != 0 and perm1[m] != m:
+        if (perm1[0] != 0) and (perm1[m] != m):
             perm = perm1[:]
-            flips_count = 0
+            int flips_count = 0
             int k = perm[0]
             while k:
                 #perm[:k+1] = perm[k::-1]
