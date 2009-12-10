@@ -17,6 +17,8 @@ namespace shore {
         std::cout << val->value << std::endl;
     }
     
+    // TODO: a) this doesn't handle negatives steps, b) there is no reason this
+    // shouldn't be written in shore
     builtin__list<builtin__int*>* builtin__range(builtin__int* start,
         builtin__int* stop, builtin__int* step) {
         builtin__list<builtin__int*>* result = builtin__list<builtin__int*>::new_instance();
