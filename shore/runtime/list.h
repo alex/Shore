@@ -22,6 +22,14 @@ namespace shore {
             builtin__list<T>() {
             }
             
+            GCSet __get_sub_objects() {
+                GCSet s;
+                for (size_t i = 0; i < this->value.size(); i++) {
+                    s.insert(this->value[i]);
+                }
+                return s;
+            }
+            
             T __getitem__(shore::builtin__int* index) {
                 long long idx = index->value;
                 if (idx < 0) {

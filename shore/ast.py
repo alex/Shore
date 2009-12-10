@@ -215,9 +215,12 @@ class BooleanCompNode(BaseNode):
     
     def generate_code(self):
         if self.op == "and":
-            return "%s ? (%s ? shore::builtin__bool::new_instance(true) : shore::builtin__bool::new_instance(false)) : shore::builtin__bool::new_instance(false)" % (self.left.generate_code(), self.right.generate_code())
+            op = "&&"
+        elif self.op == "or":
+            op == "||"
         else:
-            return "%s ? shore::builtin__bool::new_instance(true) : (%s ? shore::builtin__bool::new_instanec(true) : shore::builtin__bool::new_instance(false)" % (self.left.generate_code(), self.right.generate_code())
+            raise CompileError
+        return "shore::builtin__bool::new_instance((%s)->__bool__()->value %s (%s)->__bool__()->value)" % (self.left.generate_code(), op, self.right.generate_code())
 
 class ContainsNode(BaseNode):
     attrs = ["obj", "seq"]
