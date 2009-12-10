@@ -1,7 +1,10 @@
 #ifndef _SHORE_INT_H
 #define _SHORE_INT_H
 
+#include <cmath>
+
 #include "gc.h"
+#include "str.h"
 
 
 namespace shore {
@@ -14,6 +17,14 @@ namespace shore {
                 builtin__int* val = new builtin__int(value_);
                 shore::GC::register_object(val);
                 return val;
+            }
+            
+            static builtin__int* new_instance(builtin__str* value_) {
+                long long v = 0;
+                for (size_t i = value_->value.size()-1; i >= 0; i--;) {
+                    v += (value_->value[i] - 30) * std::pow(10, i);
+                }
+                return builtin__int::new_instance(v);
             }
             
             builtin__int(long long value_) {

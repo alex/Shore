@@ -403,6 +403,7 @@ class WhileNode(BaseNode):
     def generate_code(self):
         code = ["while ((%s)->value) {" % self.condition.generate_code()]
         code.extend(self.body.generate_code())
+        code.append("}")
         return code
     
     def get_locals(self):

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "gc.h"
+#include "int.h"
 
 
 namespace shore {
@@ -28,7 +29,7 @@ namespace shore {
             builtin__str* __mul__(shore::builtin__int* other) {
                 std::string s;
                 s.reserve(this->value.size() * other->value);
-                for (int i = 0; i < other->value; i++) {
+                for (long long i = 0; i < other->value; i++) {
                     s.append(this->value);
                 }
                 return shore::builtin__str::new_instance(s);

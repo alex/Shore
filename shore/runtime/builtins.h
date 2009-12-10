@@ -16,6 +16,23 @@ namespace shore {
     void builtin__print(shore::builtin__str* val) {
         std::cout << val->value << std::endl;
     }
+    
+    builtin__list<builtin__int*>* builtin__range(builtin__int* start,
+        builtin__int* stop, builtin__int* step) {
+        builtin__list<builtin__int*>* result = builtin__list<builtin__int*>::new_instance();
+        for (long long i = start->value; i < stop->value; i+=start->value) {
+            result->append(builtin__int::new_instance(i));
+        }
+        return result;
+    }
+
+    builtin__list<builtin__int*>* builtin__range(builtin__int* start, builtin__int* stop) {
+        return builtin__range(start, stop, builtin__int::new_instance(1));
+    }
+    
+    builtin__list<builtin__int*>* builtin__range(builtin__int* stop) {
+        return builtin__range(builtin__int::new_instance(0), stop);
+    }
 }
 
 #endif
