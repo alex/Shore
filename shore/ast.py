@@ -122,7 +122,7 @@ class IntegerNode(BaseNode):
         return Integer
     
     def generate_code(self):
-        return "shore::builtin__int::new_instance(%s)" % self.value
+        return "shore::builtin__int::new_instance(%sLL)" % self.value
 
 class FloatNode(BaseNode):
     attrs = ["value"]

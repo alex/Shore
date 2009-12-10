@@ -29,11 +29,11 @@ namespace shore {
     }
 
     builtin__list<builtin__int*>* builtin__range(builtin__int* start, builtin__int* stop) {
-        return builtin__range(start, stop, builtin__int::new_instance(1));
+        return builtin__range(start, stop, builtin__int::new_instance(1LL));
     }
     
     builtin__list<builtin__int*>* builtin__range(builtin__int* stop) {
-        return builtin__range(builtin__int::new_instance(0), stop);
+        return builtin__range(builtin__int::new_instance(0LL), stop);
     }
 }
 
