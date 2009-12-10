@@ -21,6 +21,10 @@ namespace shore {
                 this->value = value_;
             }
             
+            builtin__str* __add__(shore::builtin__str* other) {
+                return shore::builtin__str::new_instance(this->value + other->value);
+            }
+            
             builtin__str* __mul__(shore::builtin__int* other) {
                 std::string s;
                 s.reserve(this->value.size() * other->value);

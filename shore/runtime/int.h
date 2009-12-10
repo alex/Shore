@@ -24,6 +24,18 @@ namespace shore {
                 return builtin__bool::new_instance(this->value == other->value);
             }
             
+            builtin__bool* __ne__(builtin__int* other) {
+                return builtin__bool::new_instance(this->value != other->value);
+            }
+            
+            builtin__bool* __lt__(builtin__int* other) {
+                return builtin__bool::new_instance(this->value < other->value);
+            }
+
+            builtin__bool* __gt__(builtin__int* other) {
+                return builtin__bool::new_instance(this->value > other->value);
+            }
+            
             builtin__int* __add__(builtin__int* other) {
                 return builtin__int::new_instance(this->value + other->value);
             }

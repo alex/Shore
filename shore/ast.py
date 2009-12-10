@@ -215,9 +215,9 @@ class BooleanCompNode(BaseNode):
     
     def generate_code(self):
         if self.op == "and":
-            return "%s ? (%s ? shore::builtin__bool(true) : shore::builtin_bool(false)) : shore::builtin__bool(false)" % (self.left.generate_code(), self.right.generate_code())
+            return "%s ? (%s ? shore::builtin__bool::new_instance(true) : shore::builtin__bool::new_instance(false)) : shore::builtin__bool::new_instance(false)" % (self.left.generate_code(), self.right.generate_code())
         else:
-            return "%s ? shore::builtin__bool(true) : (%s ? shore::builtin__bool(true) : shore::builtin__bool(false)" % (self.left.generate_code(), self.right.generate_code())
+            return "%s ? shore::builtin__bool::new_instance(true) : (%s ? shore::builtin__bool::new_instanec(true) : shore::builtin__bool::new_instance(false)" % (self.left.generate_code(), self.right.generate_code())
 
 class ContainsNode(BaseNode):
     attrs = ["obj", "seq"]
@@ -300,7 +300,7 @@ class SubscriptNode(BaseNode):
             ))
     
     def generate_code(self):
-        return "%s.__getitem__(%s)" % (self.value.generate_code(), self.index.generate_code())
+        return "%s->__getitem__(%s)" % (self.value.generate_code(), self.index.generate_code())
 
 class TemplateNode(BaseNode):
     attrs = ["type", "parameters"]
@@ -366,15 +366,23 @@ class IfNode(BaseNode):
             self.else_body.verify(context)
             context.pop()
     
+    def get_locals(self):
+        locs = {}
+        for _, body in self.conditions:
+            locs.update(body.get_locals())
+        if self.else_body is not None:
+            locs.update(self.else_body.get_locals())
+        return locs
+    
     def generate_code(self):
         code = []
         conditions = iter(self.conditions)
         condition, body = conditions.next()
-        code.append("if ((%s)->value) {" % condition.generate_code())
+        code.append("if ((%s)->__bool__()->value) {" % condition.generate_code())
         code.extend(body.generate_code())
         code.append("}")
         for condition, body in conditions:
-            code.append("else if ((%s)->value) {" % condition.generate_code())
+            code.append("else if ((%s)->__bool__()->value) {" % condition.generate_code())
             code.extend(body.generate_code())
             code.append("}")
         if self.else_body is not None:
@@ -396,6 +404,9 @@ class WhileNode(BaseNode):
         code = ["while ((%s)->value) {" % self.condition.generate_code()]
         code.extend(self.body.generate_code())
         return code
+    
+    def get_locals(self):
+        return self.body.get_locals()
 
 class ForNode(BaseNode):
     attrs = ["name", "value", "body"]

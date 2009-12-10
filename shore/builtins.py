@@ -120,6 +120,7 @@ class Template(Builtin):
         self.functions = deepcopy(self.functions)
         self.templates = dict(zip(self.templated_over, types))
         templated = {}
+        self.class_name = self.class_name % tuple(t.class_name for t in types)
         for t in self.templates:
             templated["%s(%s)" % (RECURSIVE_TYPE_CONSTANT, ", ".join(self.templated_over))] = (
                 self
@@ -138,7 +139,7 @@ class Template(Builtin):
 
 
 class List(Template):
-    class_name = "shore::builtin__list"
+    class_name = "shore::builtin__list<%s*>"
     templated_over = ["T"]
     
     __getitem__ = Function([
@@ -151,7 +152,7 @@ class List(Template):
 
 
 class Boolean(Builtin):
-    pass
+    class_name = "shore::builtin__bool"
 
 class Integer(Builtin):
     class_name = "shore::builtin__int"
@@ -205,10 +206,10 @@ class Slice(Builtin):
 Print = Function([
     Signature(None, [(None, Integer, None)]),
     Signature(None, [(None, String, None)]),
-], name="builtin__print")
+], name="shore::builtin__print")
 
 Range = Function([
     Signature(List(Integer), [(None, Integer, None)]),
     Signature(List(Integer), [(None, Integer, None), (None, Integer, None)]),
     Signature(List(Integer), [(None, Integer, None), (None, Integer, None), (None, Integer, None)]),
-], name="builtin__range")
+], name="shore::builtin__range")
