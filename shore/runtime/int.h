@@ -12,9 +12,9 @@ namespace shore {
             // Some day this will be arbitrary percision, but not today.
             long long value;
             
-            static builtin__int* new_instance(long long value_);
-            static builtin__int* new_isntance(builtin__str* value_);
-            builtint__int(long long value_);
+            static shore::builtin__int* new_instance(long long value_);
+            static shore::builtin__int* new_isntance(shore::builtin__str* value_);
+            shore::builtint__int(long long value_);
 
             shore::builtin__bool* __eq__(builtin__int* other);
             shore::builtin__bool* __ne__(builtin__int* other);
