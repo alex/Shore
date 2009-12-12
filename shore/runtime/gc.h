@@ -3,7 +3,7 @@
 
 #include <set>
 
-#include "object.h"
+#include "shore.h"
 
 
 namespace shore {

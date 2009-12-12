@@ -3,8 +3,7 @@
 
 #include <vector>
 
-#include "gc.h"
-#include "object.h"
+#include "shore.h"
 
 
 namespace shore {

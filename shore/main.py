@@ -68,7 +68,9 @@ class Main(object):
             "-g",
             "-Wall",
             "ir.cpp",
-            os.path.join(pwd, "runtime", "gc.cpp"),
+            os.path.join(loc, "gc.cpp"),
+            os.path.join(loc, "int.cpp"),
+            os.path.join(loc, "str.cpp"),
             "-I%s" % loc,
         ]
         if args.S:
