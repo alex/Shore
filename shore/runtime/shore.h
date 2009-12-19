@@ -12,7 +12,7 @@ namespace shore {
 
 #include "bool.h"
 #include "int.h"
-//#include "list.h"
+#include "list.h"
 #include "str.h"
 #include "state.h"
 

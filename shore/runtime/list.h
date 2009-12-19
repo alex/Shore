@@ -29,7 +29,7 @@ namespace shore {
                 return s;
             }
             
-            T __getitem__(shore::builtin__int* index) {
+            T __getitem__(builtin__int* index) {
                 long long idx = index->value;
                 if (idx < 0) {
                     idx += this->value.size();
@@ -42,7 +42,7 @@ namespace shore {
                 return this->value[idx];
             }
             
-            void __setitem__(shore::builtin__int* index, T value) {
+            void __setitem__(builtin__int* index, T value) {
                 long long idx = index->value;
                 if (idx < 0) {
                     idx += this->value.size();
@@ -56,7 +56,7 @@ namespace shore {
             }
             
             shore::builtin__bool* __bool__() {
-                return shore::builtin__bool::new_instance(this->value.size() == 0);
+                return shore::builtin__bool::new_instance(this->value.size() != 0);
             }
             
             void append(T val) {
