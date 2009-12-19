@@ -1,6 +1,8 @@
 #ifndef _SHORE_OBJECT_H
 #define _SHORE_OBJECT_H
 
+#include <set>
+
 
 namespace shore {
     class Object;

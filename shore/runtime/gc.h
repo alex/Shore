@@ -1,8 +1,6 @@
 #ifndef _SHORE_GC_H
 #define _SHORE_GC_H
 
-#include <set>
-
 #include "shore.h"
 
 

@@ -12,16 +12,10 @@ namespace shore {
             
             static builtin__str* new_instance(std::string value_);
             
-            builtin__str(std::string value_) {
-                this->value = value_;
-            }
+            builtin__str(std::string value_);
             
-            builtin__str* __add__(builtin__str* other) {
-                return builtin__str::new_instance(this->value + other->value);
-            }
-            
+            builtin__str* __add__(shore::builtin__str* other);
             builtin__str* __mul__(shore::builtin__int* other);
-
     };
 }
 #endif
