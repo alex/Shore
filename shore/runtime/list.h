@@ -55,8 +55,8 @@ namespace shore {
                 this->value[idx] = value;
             }
             
-            shore::builtin__bool* __bool__() {
-                return shore::builtin__bool::new_instance(this->value.size() != 0);
+            builtin__bool* __bool__() {
+                return builtin__bool::new_instance(this->value.size() != 0);
             }
             
             void append(T val) {

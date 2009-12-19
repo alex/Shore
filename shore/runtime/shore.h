@@ -9,11 +9,11 @@ namespace shore {
 
 #include "object.h"
 #include "gc.h"
+#include "state.h"
 
 #include "bool.h"
 #include "int.h"
-#include "list.h"
 #include "str.h"
-#include "state.h"
+//#include "list.h"
 
 #endif
