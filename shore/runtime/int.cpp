@@ -21,16 +21,16 @@ namespace shore {
         this->value = value_;
     }
                 
-    shore::builtin__bool* shore::builtin__int::__eq__(shore::builtin__int* other) {
-        return shore::builtin__bool::new_instance(this->value == other->value);
+    builtin__bool* shore::builtin__int::__eq__(shore::builtin__int* other) {
+        return builtin__bool::new_instance(this->value == other->value);
     }
 
-    shore::builtin__bool* shore::builtin__int::__ne__(shore::builtin__int* other) {
-        return shore::builtin__bool::new_instance(this->value != other->value);
+    builtin__bool* shore::builtin__int::__ne__(shore::builtin__int* other) {
+        return builtin__bool::new_instance(this->value != other->value);
     }
 
-    shore::builtin__bool* shore::builtin__int::__lt__(shore::builtin__int* other) {
-        return shore::builtin__bool::new_instance(this->value < other->value);
+    builtin__bool* shore::builtin__int::__lt__(shore::builtin__int* other) {
+        return builtin__bool::new_instance(this->value < other->value);
     }
 
     shore::builtin__bool* shore::builtin__int::__gt__(shore::builtin__int* other) {

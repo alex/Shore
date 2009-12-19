@@ -55,7 +55,6 @@ class Main(object):
         args = parser.parse_args()
         shore = Shore(args.file.read())
         if args.parse:
-#            print "\n".join(map(str, shore.tokenize()))
             print shore.parse()
             return
 
@@ -71,6 +70,7 @@ class Main(object):
             os.path.join(loc, "gc.cpp"),
             os.path.join(loc, "int.cpp"),
             os.path.join(loc, "str.cpp"),
+            os.path.join(loc, "bool.cpp"),
             "-I%s" % loc,
         ]
         if args.S:

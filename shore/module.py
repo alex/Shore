@@ -60,10 +60,8 @@ class Module(object):
     
     def generate_code(self):
         code = [
+            '#include "shore.h"',
             '#include "builtins.h"',
-            '#include "frame.h"',
-            '#include "object.h"',
-            '#include "state.h"',
         ]
         
         code.append("std::vector<shore::Frame*> shore::State::frames;")

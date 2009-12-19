@@ -10,7 +10,6 @@ namespace shore {
             bool value;
             
             static builtin__bool* new_instance(bool value_);
-            
             builtin__bool(bool value_);
             
             builtin__bool* __bool__();
