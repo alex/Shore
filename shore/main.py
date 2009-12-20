@@ -71,6 +71,7 @@ class Main(object):
             os.path.join(loc, "int.cpp"),
             os.path.join(loc, "str.cpp"),
             os.path.join(loc, "bool.cpp"),
+            os.path.join(loc, "slice.cpp"),
             "-I%s" % loc,
         ]
         if args.S:

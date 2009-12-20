@@ -42,6 +42,11 @@ namespace shore {
                 return this->value[idx];
             }
             
+            builtin__list<T>* __getitem__(builtin__slice* index) {
+                // TODO: implement this.
+                return NULL;
+            }
+            
             void __setitem__(builtin__int* index, T value) {
                 long long idx = index->value;
                 if (idx < 0) {

@@ -5,6 +5,7 @@ namespace shore {
     class builtin__int;
     class builtin__str;
     class builtin__bool;
+    class builtin__slice;
 }
 
 #include "object.h"
@@ -15,5 +16,6 @@ namespace shore {
 #include "int.h"
 #include "str.h"
 #include "list.h"
+#include "slice.h"
 
 #endif
