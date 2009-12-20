@@ -17,6 +17,8 @@ namespace shore {
             
             builtin__slice(builtin__int* start_, builtin__int* stop_,
                 builtin__int* step_);
+            
+            GCSet __get_sub_objects();
     };
 }
 #endif

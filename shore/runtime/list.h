@@ -12,14 +12,7 @@ namespace shore {
         public:
             std::vector<T> value;
         
-            static builtin__list<T>* new_instance() {
-                builtin__list<T>* val = new builtin__list<T>();
-                shore::GC::register_object(val);
-                return val;
-            }
-            
-            builtin__list<T>() {
-            }
+            static builtin__list<T>* new_instance();
             
             GCSet __get_sub_objects() {
                 GCSet s;
@@ -68,5 +61,13 @@ namespace shore {
                 this->value.push_back(val);
             }
     };
+    
+    template<typename T>
+    builtin__list<T>* builtin__list<T>::new_instance() {
+        builtin__list<T>* val = new builtin__list<T>();
+        shore::GC::register_object(val);
+        return val;
+    }
+
 }
 #endif

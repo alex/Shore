@@ -15,4 +15,12 @@ namespace shore {
         this->stop = stop_;
         this->step = step_;
     }
+    
+    GCSet builtin__slice::__get_sub_objects() {
+        GCSet s;
+        s.insert(this->start);
+        s.insert(this->stop);
+        s.insert(this->step);
+        return s;
+    }
 }
