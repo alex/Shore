@@ -74,4 +74,15 @@ class Module(object):
         for function in self.functions.values():
             code.extend(function.generate_code())
         
+        main = [
+            "int main(int argc, char* argv[]) {",
+            "    shore::builtin__list<shore::builtin__str*>* args = shore::builtin__list<shore::builtin__str*>::new_instance();",
+            "    for (int i = 0; i < argc; i++) {",
+            "        args->append(shore::builtin__str::new_instance(std::string(argv[i])));",
+            "    }",
+            "    return app_main(args);",
+            "}",
+        ]
+        code.extend(main)
+        
         return "\n".join(code)

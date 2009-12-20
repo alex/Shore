@@ -11,6 +11,7 @@ namespace shore {
             std::string value;
             
             static builtin__str* new_instance(std::string value_);
+            static builtin__str* new_instance(builtin__int* value_);
             
             builtin__str(std::string value_);
             

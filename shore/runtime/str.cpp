@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "str.h"
 
 
@@ -6,6 +8,12 @@ namespace shore {
         builtin__str* val = new shore::builtin__str(value_);
         shore::GC::register_object(val);
         return val;
+    }
+    
+    builtin__str* builtin__str::new_instance(builtin__int* value_) {
+        std::stringstream ss;
+        ss << value_->value;
+        return builtin__str::new_instance(ss.str());
     }
 
     builtin__str::builtin__str(std::string value_) {

@@ -475,7 +475,7 @@ class FunctionNode(BaseNode):
         code = [
             "%(return_type)s %(name)s(%(parameters)s) {" % {
                 "return_type": self.return_type.class_name+"*" if self.return_type is not None else ("void" if self.name != "main" else "int"),
-                "name": self.name,
+                "name": self.name if self.name != "main" else "app_main",
                 "parameters": ", ".join(["%s* %s" % (type.value.class_name, name) for name, type, default in self.arguments]),
             },
         ]
