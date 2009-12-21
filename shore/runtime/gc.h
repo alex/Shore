@@ -1,7 +1,7 @@
 #ifndef _SHORE_GC_H
 #define _SHORE_GC_H
 
-#include "shore.h"
+#include "object.h"
 
 
 namespace shore {
