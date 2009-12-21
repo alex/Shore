@@ -62,6 +62,7 @@ class Module(object):
         code = [
             '#include "shore.h"',
             '#include "builtins.h"',
+            '#include "list.h"',
         ]
         
         code.append("std::vector<shore::Frame*> shore::State::frames;")

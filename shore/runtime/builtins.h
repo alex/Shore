@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "shore.h"
+#include "list.h"
 
 
 namespace shore {

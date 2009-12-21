@@ -16,7 +16,6 @@ namespace shore {
 #include "bool.h"
 #include "int.h"
 #include "str.h"
-#include "list.h"
 #include "slice.h"
 
 #endif
