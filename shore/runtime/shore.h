@@ -6,6 +6,7 @@ namespace shore {
     class builtin__str;
     class builtin__bool;
     class builtin__slice;
+    class GC;
 }
 
 #include "object.h"
