@@ -30,7 +30,7 @@ int def fannkuch(int n):
         
         bool broke = False
         while r != n:
-            #perm1.insert(r, perm1.pop(0))
+            perm1.insert(r, perm1.pop(0))
             count[r] = count[r] - 1
             if count[r] > 0:
                 broke = True

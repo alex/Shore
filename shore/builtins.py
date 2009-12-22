@@ -59,6 +59,9 @@ class Function(object):
     def get_frame_class(self):
         return []
     
+    def get_declaration(self):
+        return []
+    
     def generate_code(self):
         return []
 

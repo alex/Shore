@@ -471,10 +471,17 @@ class FunctionNode(BaseNode):
         code.append("};")
         return code
     
+    def get_declaration(self):
+        return ["%(return_type)s %(name)s(%(parameters)s);" % {
+            "return_type": self.return_type.class_name+"*" if self.return_type is not None else "void",
+            "name": self.name if self.name != "main" else "app_main",
+            "parameters": ", ".join("%s* %s" % (type.value.class_name, name) for name, type, default in self.arguments),
+        }]
+    
     def generate_code(self):
         code = [
             "%(return_type)s %(name)s(%(parameters)s) {" % {
-                "return_type": self.return_type.class_name+"*" if self.return_type is not None else ("void" if self.name != "main" else "int"),
+                "return_type": self.return_type.class_name+"*" if self.return_type is not None else "void",
                 "name": self.name if self.name != "main" else "app_main",
                 "parameters": ", ".join(["%s* %s" % (type.value.class_name, name) for name, type, default in self.arguments]),
             },

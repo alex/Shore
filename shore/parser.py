@@ -181,7 +181,7 @@ class Parser(object):
 
     def p_expression_function_call(self, t):
         """
-        expression : NAME LPAR arglist RPAR
+        expression : expression LPAR arglist RPAR
         """
         t[0] = ast.CallNode(ast.NameNode(t[1]), t[3])
 

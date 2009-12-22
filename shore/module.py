@@ -73,6 +73,8 @@ class Module(object):
         for function in self.functions.values():
             code.extend(function.get_frame_class())
         for function in self.functions.values():
+            code.extend(function.get_declaration())
+        for function in self.functions.values():
             code.extend(function.generate_code())
         
         main = [
@@ -81,9 +83,14 @@ class Module(object):
             "    for (int i = 0; i < argc; i++) {",
             "        args->append(shore::builtin__str::new_instance(std::string(argv[i])));",
             "    }",
-            "    return app_main(args);",
-            "}",
         ]
+        if self.functions["main"].return_type is None:
+            main.append("    app_main(args);")
+            main.append("    return 0;")
+        else:
+            main.append("    return app_main(args);")
+        main.append("}")
+        
         code.extend(main)
         
         return "\n".join(code)
