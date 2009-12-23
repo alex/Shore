@@ -152,6 +152,14 @@ class List(Template):
     __setitem__ = Function([
         Signature(None, [(None, "self(T)", None), (None, "Integer", None), (None, "T", None)]),
     ])
+    
+    pop = Function([
+        Signature("T", [(None, "Integer", None)]),
+        Signature("T", []),
+    ])
+    insert = Function([
+        Signature(None, [(None, "Integer", None), (None, "T", None)])
+    ])
 
 
 class Boolean(Builtin):
@@ -191,6 +199,11 @@ class Integer(Builtin):
 
 class String(Builtin):
     class_name = "shore::builtin__str"
+    
+    __new__ = Function([
+        Signature("self", [(None, "self", None)]),
+        Signature("self", [(None, Integer, None)])
+    ])
     
     __add__ = Function([
         Signature("self", [(None, "self", None), (None, "self", None)])

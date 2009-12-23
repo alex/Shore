@@ -12,7 +12,6 @@ def bind_to_module(obj, module):
 
 class BaseNode(object):
     attrs = []
-    needs_bind_to_module = []
     
     def __init__(self,  *args):
         for attr, value in zip(self.attrs, args):
@@ -33,7 +32,7 @@ class BaseNode(object):
             all(getattr(self, attr) == other[i+1] for i, attr in enumerate(self.attrs))))
     
     def bind_to_module(self, module):
-        for attr in self.needs_bind_to_module:
+        for attr in self.attrs:
             bind_to_module(getattr(self, attr), module)
 
 
@@ -77,7 +76,6 @@ class NodeList(object):
 
 class NoneNode(BaseNode):
     attrs = []
-    needs_bind_to_module = []
     
     def verify(self, context):
         pass
@@ -90,7 +88,6 @@ class NoneNode(BaseNode):
 
 class BooleanNode(BaseNode):
     attrs = ["value"]
-    needs_bind_to_module = []
     
     def verify(self, context):
         pass
@@ -103,7 +100,9 @@ class BooleanNode(BaseNode):
 
 class StringNode(BaseNode):
     attrs = ["value"]
-    needs_bind_to_module = []
+    
+    def verify(self, context):
+        pass
     
     def type(self, context):
         return String
@@ -113,7 +112,6 @@ class StringNode(BaseNode):
 
 class IntegerNode(BaseNode):
     attrs = ["value"]
-    needs_bind_to_module = []
     
     def verify(self, context):
         pass
@@ -126,11 +124,9 @@ class IntegerNode(BaseNode):
 
 class FloatNode(BaseNode):
     attrs = ["value"]
-    needs_bind_to_module = []
 
 class BinOpNode(BaseNode):
     attrs = ["left", "right", "op"]
-    needs_bind_to_module = ["left", "right"]
 
     method_names = {
         "*": "__mul__",
@@ -185,7 +181,6 @@ class BinOpNode(BaseNode):
 
 class CompNode(BaseNode):
     attrs = ["left", "right", "op"]
-    needs_bind_to_module = ["left", "right"]
 
     method_names = {
         "==": "__eq__",
@@ -216,7 +211,6 @@ class CompNode(BaseNode):
 
 class BooleanCompNode(BaseNode):
     attrs = ["left", "right", "op"]
-    needs_bind_to_module = ["left", "right"]
     
     def verify(self, context):
         self.left.verify(context)
@@ -236,11 +230,9 @@ class BooleanCompNode(BaseNode):
 
 class ContainsNode(BaseNode):
     attrs = ["obj", "seq"]
-    needs_bind_to_module = ["obj", "seq"]
 
 class UnaryOpNode(BaseNode):
     attrs = ["value", "op"]
-    needs_bind_to_module = ["value"]
     
     def verify(self, context):
         self.value.verify(context)
@@ -284,7 +276,6 @@ class NameNode(BaseNode):
 
 class DeclarationNode(BaseNode):
     attrs = ["type", "name", "value"]
-    needs_bind_to_module = ["type", "value"]
     
     def verify(self, context):
         context[self.name] = self.type.value
@@ -300,7 +291,6 @@ class DeclarationNode(BaseNode):
 
 class SubscriptNode(BaseNode):
     attrs = ["value", "index"]
-    needs_bind_to_module = ["value", "index"]
     
     def type(self, context):
         type = self.value.type(context)
@@ -325,7 +315,6 @@ class SubscriptNode(BaseNode):
 
 class TemplateNode(BaseNode):
     attrs = ["type", "parameters"]
-    needs_bind_to_module = ["type", "parameters"]
     
     def bind_to_module(self, module):
         super(TemplateNode, self).bind_to_module(module)
@@ -333,7 +322,6 @@ class TemplateNode(BaseNode):
 
 class AssignmentNode(BaseNode):
     attrs = ["name", "value"]
-    needs_bind_to_module = ["value"]
     
     def verify(self, context):
         self.value.verify(context)
@@ -347,7 +335,6 @@ class AssignmentNode(BaseNode):
 
 class ItemAssignmentNode(BaseNode):
     attrs = ["lhs", "index", "value"]
-    needs_bind_to_module = ["lhs", "index", "value"]
     
     def verify(self, context):
         self.lhs.verify(context)
@@ -370,11 +357,9 @@ class ItemAssignmentNode(BaseNode):
 
 class AttrAssignmentNode(BaseNode):
     attrs = ["lhs", "attr", "value"]
-    needs_bind_to_module = ["lhs", "attr", "value"]
 
 class IfNode(BaseNode):
     attrs = ["conditions", "else_body"]
-    needs_bind_to_module = ["conditions", "else_body"]
     
     def verify(self, context):
         for condition, body in self.conditions:
@@ -415,7 +400,6 @@ class IfNode(BaseNode):
 
 class WhileNode(BaseNode):
     attrs = ["condition", "body"]
-    needs_bind_to_module = ["condition", "body"]
     
     def verify(self, context):
         self.condition.verify(context)
@@ -432,11 +416,9 @@ class WhileNode(BaseNode):
 
 class ForNode(BaseNode):
     attrs = ["name", "value", "body"]
-    needs_bind_to_module = ["value", "body"]
 
 class FunctionNode(BaseNode):
     attrs = ["name", "templates", "return_type", "arguments", "body"]
-    needs_bind_to_module = ["templates", "arguments", "body"]
     
     def bind_to_module(self, module):
         super(FunctionNode, self).bind_to_module(module)
@@ -523,7 +505,6 @@ class FunctionNode(BaseNode):
 
 class ReturnNode(BaseNode):
     attrs = ["value"]
-    needs_bind_to_module = ["value"]
     
     def verify(self, context):
         self.value.verify(context)
@@ -540,16 +521,16 @@ class ReturnNode(BaseNode):
 
 class ClassNode(BaseNode):
     attrs = ["name", "templates", "superclasses", "body"]
-    needs_bind_to_module = ["superclasses", "body"]
 
 class PassNode(BaseNode):
     attrs = []
 
 class CallNode(BaseNode):
     attrs = ["function", "arguments"]
-    needs_bind_to_module = ["function", "arguments"]
     
     def verify(self, context):
+        for name, arg in self.arguments:
+            arg.verify(context)
         self.function = self.function.as_function(context)
         if not self.function.matches([(name, node.type(context)) for name, node in self.arguments]):
             raise CompileError("Argument mismatch")
@@ -567,7 +548,9 @@ class CallNode(BaseNode):
 
 class AttributeNode(BaseNode):
     attrs = ["value", "attribute"]
-    needs_bind_to_module = ["value"]
+    
+    def as_function(self, context):
+        return self.value.type(context).functions[self.attribute]
 
 class BreakNode(BaseNode):
     attrs = []
