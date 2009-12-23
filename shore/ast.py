@@ -271,7 +271,7 @@ class NameNode(BaseNode):
     
     def generate_code(self):
         if hasattr(self, "value"):
-            return [self.value.class_name]
+            return self.value.class_name
         return "frame.%s" % self.name
 
 class DeclarationNode(BaseNode):
@@ -531,19 +531,22 @@ class CallNode(BaseNode):
     def verify(self, context):
         for name, arg in self.arguments:
             arg.verify(context)
-        self.function = self.function.as_function(context)
-        if not self.function.matches([(name, node.type(context)) for name, node in self.arguments]):
+        self.callable = self.function.as_function(context)
+        if not self.callable.matches([(name, node.type(context)) for name, node in self.arguments]):
             raise CompileError("Argument mismatch")
     
     def type(self, context):
-        return self.function.returns([(name, node.type(context)) for name, node in self.arguments])
+        return self.callable.returns([(name, node.type(context)) for name, node in self.arguments])
     
     def generate_code(self):
         # TODO: named args
-        if hasattr(self.function, "class_name"):
-            func = "%s::new_instance" % self.function.class_name
+        if hasattr(self.callable, "class_name"):
+            func = "%s::new_instance" % self.callable.class_name
         else:
-            func = self.function.generate_code()
+            if hasattr(self.callable, "name") and self.callable.name is not None:
+                func = self.callable.name
+            else:
+                func = self.function.generate_code()
         return "%s(%s)" % (func, ", ".join(arg.generate_code() for name, arg in self.arguments))
 
 class AttributeNode(BaseNode):
@@ -551,6 +554,9 @@ class AttributeNode(BaseNode):
     
     def as_function(self, context):
         return self.value.type(context).functions[self.attribute]
+    
+    def generate_code(self):
+        return "(%s)->%s" % (self.value.generate_code(), self.attribute)
 
 class BreakNode(BaseNode):
     attrs = []
