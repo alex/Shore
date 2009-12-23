@@ -183,7 +183,7 @@ class Parser(object):
         """
         expression : expression LPAR arglist RPAR
         """
-        t[0] = ast.CallNode(ast.NameNode(t[1]), t[3])
+        t[0] = ast.CallNode(t[1], t[3])
 
     def p_expression_attribute(self, t):
         """

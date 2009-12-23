@@ -142,36 +142,46 @@ class BinOpNode(BaseNode):
         "|": "__or__",
         "^": "__xor__",
     }
+    reverse_method_names = {
+        "*": "__rmul__",
+        "/": "__rdiv__",
+        "%": "__rmod__",
+        "+": "__radd__",
+        "-": "__rsub__",
+    }
     
     def get_func(self, context, signature=False):
         left_type, right_type = self.left.type(context), self.right.type(context)
         method = self.method_names[self.op]
-        reverse_method = "__r%s__" % method.split("__")[1]
+        reverse_method = self.reverse_method_names[self.op]
         if method in left_type.functions:
             if left_type.functions[method].matches([(None, left_type), (None, right_type)]):
                 if signature:
-                    return left_type.functions[method].get_matching_signature([(None, left_type), (None, right_type)])
+                    return left_type.functions[method].get_matching_signature([(None, left_type), (None, right_type)]), False
                 else:
-                    return left_type.functions[method]
+                    return left_type.functions[method], False
         if reverse_method in right_type.functions:
             if right_type.functions[reverse_method].arguments[1][1] is left_type:
                 if signature:
-                    return right_type.functins[reverse].get_matching_signature([(None, right_type), (None, left_type)])
+                    return right_type.functins[reverse].get_matching_signature([(None, right_type), (None, left_type)]), True
                 else:
-                    return right_type.functions[reverse_method]
+                    return right_type.functions[reverse_method], True
         raise CompileError("Can't do %s on %s, %s" % (self.op, left_type, right_type))
     
     def verify(self, context):
         self.left.verify(context)
         self.right.verify(context)
-        self.get_func(context)
+        self.reverse = self.get_func(context)[1]
     
     def type(self, context):
-        return self.get_func(context, signature=True).return_type
+        return self.get_func(context, signature=True)[0].return_type
     
     def generate_code(self):
-        # TODO: doesn't handle the reverse case
-        return "(%s)->%s(%s)" % (self.left.generate_code(), self.method_names[self.op], self.right.generate_code())
+        left = self.left.generate_code()
+        right = self.right.generate_code()
+        if self.reverse:
+            return "(%s)->%s(%s)" % (right, self.reverse_method_namse[self.op], left)
+        return "(%s)->%s(%s)" % (left, self.method_names[self.op], right)
 
 class CompNode(BaseNode):
     attrs = ["left", "right", "op"]
@@ -200,7 +210,9 @@ class CompNode(BaseNode):
         return self.left.type(context).functions[self.method_names[self.op]].get_matching_signature([(None, self.left.type(context)), (None, self.right.type(context))]).return_type
     
     def generate_code(self):
-        return "(%s)->%s(%s)" % (self.left.generate_code(), self.method_names[self.op], self.right.generate_code())
+        left = self.left.generate_code()
+        right = self.right.generate_code()
+        return "(%s)->%s(%s)" % (left, self.method_names[self.op], right)
 
 class BooleanCompNode(BaseNode):
     attrs = ["left", "right", "op"]
@@ -239,7 +251,8 @@ class UnaryOpNode(BaseNode):
     
     def generate_code(self):
         if self.op == "not":
-            return "shore::builtin__bool::new_instance(!(%s)->value)" % self.value.generate_code()
+            code = self.value.generate_code()
+            return "shore::builtin__bool::new_instance(!(%s)->value)" % code
         # TODO: Handle other cases
         raise Exception
 
@@ -255,9 +268,14 @@ class NameNode(BaseNode):
     def verify(self, context):
         if not hasattr(self, "value") and self.name not in context:
             raise CompileError("%s not declared" % self.name)
+        if not hasattr(self, "value"):
+            self.bound_type = self.type(context)
     
     def type(self, context):
         return context[self.name]
+    
+    def as_function(self, context):
+        return self.value
     
     def generate_code(self):
         if hasattr(self, "value"):
@@ -529,16 +547,10 @@ class PassNode(BaseNode):
 
 class CallNode(BaseNode):
     attrs = ["function", "arguments"]
-    needs_bind_to_module = ["arguments"]
-    
-    def bind_to_module(self, module):
-        super(CallNode, self).bind_to_module(module)
-        if self.function.name in module.functions:
-            self.function = module.functions[self.function.name]
-        else:
-            self.function = module.classes[self.function.name]
+    needs_bind_to_module = ["function", "arguments"]
     
     def verify(self, context):
+        self.function = self.function.as_function(context)
         if not self.function.matches([(name, node.type(context)) for name, node in self.arguments]):
             raise CompileError("Argument mismatch")
     
@@ -550,7 +562,7 @@ class CallNode(BaseNode):
         if hasattr(self.function, "class_name"):
             func = "%s::new_instance" % self.function.class_name
         else:
-            func = self.function.name
+            func = self.function.generate_code()
         return "%s(%s)" % (func, ", ".join(arg.generate_code() for name, arg in self.arguments))
 
 class AttributeNode(BaseNode):
