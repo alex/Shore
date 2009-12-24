@@ -58,8 +58,30 @@ namespace shore {
     
     template<typename T>
     builtin__list<T>* builtin__list<T>::__getitem__(builtin__slice* index) {
-        // TODO: implement this.
-        return NULL;
+        long long start, stop, step;
+        if (index->start == NULL) {
+            start = 0LL;
+        }
+        else {
+            start = index->start->value;
+        }
+        if (index->stop == NULL) {
+            stop = this->value.size();
+        }
+        else {
+            stop = index->stop->value;
+        }
+        if (index->step == NULL) {
+            step = 1LL;
+        }
+        else {
+            step = index->step->value;
+        }
+        builtin__list<T>* val = builtin__list<T>::new_instance();
+        for (long long i = start; i < stop; i+=step) {
+            val->append(builtin__int::new_instance(i));
+        }
+        return val;
     }
     
     template<typename T>
