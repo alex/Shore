@@ -10,9 +10,9 @@ namespace shore {
 
     builtin__int* builtin__int::new_instance(shore::builtin__str* value_) {
         long long v = 0;
-        for (size_t i = value_->value.size()-1; i >= 0; i--) {
+        for (size_t i = 0; i < value_->value.size(); i++) {
             // TODO: Handle values that aren't integers properly
-            v += (value_->value[i] - 30) * std::pow(10, i);
+            v += (value_->value[i] - 48) * std::pow(10, value_->value.size()-i-1);
         }
         return builtin__int::new_instance(v);
     }

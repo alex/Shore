@@ -23,6 +23,7 @@ namespace shore {
             
             void append(T val);
             void insert(builtin__int* index, T value);
+            T pop(builtin__int* index);
     };
     
     template<typename T>
@@ -87,11 +88,22 @@ namespace shore {
     
     template<typename T>
     void builtin__list<T>::insert(builtin__int* index, T val) {
-        std::vector<T>::iterator itr = this->value.begin();
+        typename std::vector<T>::iterator itr = this->value.begin();
         for (long long i = 0LL; i < index->value; i++) {
             itr++;
         }
         this->value.insert(itr, val);
+    }
+    
+    template<typename T>
+    T builtin__list<T>::pop(builtin__int* index) {
+        typename std::vector<T>::iterator itr = this->value.begin();
+        for (long long i = 0LL; i < index->value; i++) {
+            itr++;
+        }
+        T tmp = *itr;
+        this->value.erase(itr);
+        return tmp;
     }
 }
 #endif
